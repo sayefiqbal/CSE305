@@ -92,10 +92,195 @@ public class interpreter{
 				return; 
 			}
 		}
-		else if(command.contains("mul")){
-			
+		else if(command.contains("add")){
+			if(_store.isEmpty() || _store.size()==1){
+				_store.push(":error:");
+				return; 
+			}else{
+				String sVal1 = _store.pop(); 
+				String sVal2 = _store.pop();
+				try{
+					if(isInt(sVal1) && isInt(sVal2)){
+						int val1 = Integer.parseInt(sVal1);
+						int val2 = Integer.parseInt(sVal2);
+						int val = val1 + val2; 
+						String sVal = Integer.toString(val);
+						_store.push(sVal);
+						return; 
+					}else{
+						_store.push(sVal1);
+						_store.push(sVal2);
+						_store.push(":error:");
+						return; 
+					}
+				}
+				catch(IndexOutOfBoundsException ex){
+					_store.push(sVal1);
+					_store.push(sVal2);
+					_store.push(":error:");
+					return; 
+				}
+			}
+		}else if(command.contains("mul")){
+			if(_store.isEmpty() || _store.size()==1){
+				_store.push(":error:");
+				return; 
+			}else{
+				String sVal1 = _store.pop(); 
+				String sVal2 = _store.pop();
+				try{
+					if(isInt(sVal1) && isInt(sVal2)){
+						int val1 = Integer.parseInt(sVal1);
+						int val2 = Integer.parseInt(sVal2);
+						int val = val1 * val2; 
+						String sVal = Integer.toString(val);
+						_store.push(sVal);
+						return; 
+					}else{
+						_store.push(sVal1);
+						_store.push(sVal2);
+						_store.push(":error:");
+						return; 
+					}
+				}
+				catch(IndexOutOfBoundsException ex){
+					_store.push(sVal1);
+					_store.push(sVal2);
+					_store.push(":error:");
+					return; 
+				}
+			}
+		}else if(command.contains("sub")){
+			if(_store.isEmpty() || _store.size()==1){
+				_store.push(":error:");
+				return; 
+			}else{
+				String sVal1 = _store.pop(); 
+				String sVal2 = _store.pop();
+				try{
+					if(isInt(sVal1) && isInt(sVal2)){
+						int val1 = Integer.parseInt(sVal1);
+						int val2 = Integer.parseInt(sVal2);
+						int val = val2 - val1; 
+						String sVal = Integer.toString(val);
+						_store.push(sVal);
+						return; 
+					}else{
+						_store.push(sVal1);
+						_store.push(sVal2);
+						_store.push(":error:");
+						return; 
+					}
+				}
+				catch(IndexOutOfBoundsException ex){
+					_store.push(sVal1);
+					_store.push(sVal2);
+					_store.push(":error:");
+					return; 
+				}
+			}
+		}else if(command.contains("div")){
+			if(_store.isEmpty() || _store.size()==1){
+				_store.push(":error:");
+				return; 
+			}else{
+				String sVal1 = _store.pop(); 
+				String sVal2 = _store.pop();
+				try{
+					if(isInt(sVal1) && isInt(sVal2)){
+						int val1 = Integer.parseInt(sVal1);
+						if(val1 == 0){
+							_store.push(sVal1);
+							_store.push(sVal2);
+							_store.push(":error:");
+							return;
+						}
+						int val2 = Integer.parseInt(sVal2);
+						int val = val2 / val1; 
+						String sVal = Integer.toString(val);
+						_store.push(sVal);
+						return;
+					}else{
+						_store.push(sVal1);
+						_store.push(sVal2);
+						_store.push(":error:");
+						return;
+					}
+				}
+				catch(IndexOutOfBoundsException ex){
+					_store.push(sVal1);
+					_store.push(sVal2);
+					_store.push(":error:");
+					return;
+				}
+			}
+		}else if(command.contains("rem")){
+			if(_store.isEmpty() || _store.size()==1){
+				_store.push(":error:");
+				return; 
+			}else{
+				String sVal1 = _store.pop(); 
+				String sVal2 = _store.pop();
+				try{
+					if(isInt(sVal1) && isInt(sVal2)){
+						int val1 = Integer.parseInt(sVal1);
+						if(val1 == 0){
+							_store.push(sVal1);
+							_store.push(sVal2);
+							_store.push(":error:");
+							return;
+						}
+						int val2 = Integer.parseInt(sVal2);
+						int val = val2 % val1; 
+						String sVal = Integer.toString(val);
+						_store.push(sVal);
+						return;
+					}else{
+						_store.push(sVal1);
+						_store.push(sVal2);
+						_store.push(":error:");
+						return;
+					}
+				}
+				catch(IndexOutOfBoundsException ex){
+					_store.push(sVal1);
+					_store.push(sVal2);
+					_store.push(":error:");
+					return;
+				}
+			}
+		}else if(command.contains("neg")){
+			if(_store.isEmpty()){
+				_store.push(":error:");
+				return; 
+			}else{
+				String sVal1 = _store.pop(); 
+				try{
+					if(isInt(sVal1)){
+						int val1 = Integer.parseInt(sVal1);
+						if(val1 == 0){
+							
+							return;
+						}
+						int val2 = Integer.parseInt(sVal2);
+						int val = val2 % val1; 
+						String sVal = Integer.toString(val);
+						_store.push(sVal);
+						return;
+					}else{
+						_store.push(sVal1);
+						_store.push(":error:");
+						return;
+					}
+				}
+				catch(IndexOutOfBoundsException ex){
+					_store.push(sVal1);
+					_store.push(sVal2);
+					_store.push(":error:");
+					return;
+				}
+			}
 		}
-
 	}
 	
 	public static boolean isInt(String s)throws IndexOutOfBoundsException, NumberFormatException{
