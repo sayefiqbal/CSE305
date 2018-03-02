@@ -92,6 +92,9 @@ public class interpreter{
 				return; 
 			}
 		}
+		else if(command.contains("mul")){
+			
+		}
 
 	}
 	
