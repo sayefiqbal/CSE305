@@ -55,10 +55,10 @@ public class interpreter{
 		if(command.contains("quit")){
 			return; 
 		}
-		if(!_store.isEmpty() && _store.peek()==":error:"){
-			_store.push(":error:");
-			return;
-		}
+//		if(!_store.isEmpty() && _store.peek()==":error:"){
+//			_store.push(":error:");
+//			return;
+//		}
 		if(command.contains("push")){
 			String numPush = command.substring(5,command.length());
 			try{
@@ -108,15 +108,15 @@ public class interpreter{
 						_store.push(sVal);
 						return; 
 					}else{
-						_store.push(sVal1);
 						_store.push(sVal2);
+						_store.push(sVal1);
 						_store.push(":error:");
 						return; 
 					}
 				}
 				catch(IndexOutOfBoundsException ex){
-					_store.push(sVal1);
 					_store.push(sVal2);
+					_store.push(sVal1);
 					_store.push(":error:");
 					return; 
 				}
@@ -137,15 +137,15 @@ public class interpreter{
 						_store.push(sVal);
 						return; 
 					}else{
-						_store.push(sVal1);
 						_store.push(sVal2);
+						_store.push(sVal1);
 						_store.push(":error:");
 						return; 
 					}
 				}
 				catch(IndexOutOfBoundsException ex){
-					_store.push(sVal1);
 					_store.push(sVal2);
+					_store.push(sVal1);
 					_store.push(":error:");
 					return; 
 				}
@@ -166,15 +166,15 @@ public class interpreter{
 						_store.push(sVal);
 						return; 
 					}else{
-						_store.push(sVal1);
 						_store.push(sVal2);
+						_store.push(sVal1);
 						_store.push(":error:");
 						return; 
 					}
 				}
 				catch(IndexOutOfBoundsException ex){
-					_store.push(sVal1);
 					_store.push(sVal2);
+					_store.push(sVal1);
 					_store.push(":error:");
 					return; 
 				}
@@ -190,8 +190,8 @@ public class interpreter{
 					if(isInt(sVal1) && isInt(sVal2)){
 						int val1 = Integer.parseInt(sVal1);
 						if(val1 == 0){
-							_store.push(sVal1);
 							_store.push(sVal2);
+							_store.push(sVal1);
 							_store.push(":error:");
 							return;
 						}
@@ -201,15 +201,15 @@ public class interpreter{
 						_store.push(sVal);
 						return;
 					}else{
-						_store.push(sVal1);
 						_store.push(sVal2);
+						_store.push(sVal1);
 						_store.push(":error:");
 						return;
 					}
 				}
 				catch(IndexOutOfBoundsException ex){
-					_store.push(sVal1);
 					_store.push(sVal2);
+					_store.push(sVal1);
 					_store.push(":error:");
 					return;
 				}
@@ -225,8 +225,8 @@ public class interpreter{
 					if(isInt(sVal1) && isInt(sVal2)){
 						int val1 = Integer.parseInt(sVal1);
 						if(val1 == 0){
-							_store.push(sVal1);
 							_store.push(sVal2);
+							_store.push(sVal1);
 							_store.push(":error:");
 							return;
 						}
@@ -236,15 +236,15 @@ public class interpreter{
 						_store.push(sVal);
 						return;
 					}else{
-						_store.push(sVal1);
 						_store.push(sVal2);
+						_store.push(sVal1);
 						_store.push(":error:");
 						return;
 					}
 				}
 				catch(IndexOutOfBoundsException ex){
-					_store.push(sVal1);
 					_store.push(sVal2);
+					_store.push(sVal1);
 					_store.push(":error:");
 					return;
 				}
