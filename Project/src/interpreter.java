@@ -15,7 +15,7 @@ import java.util.Stack;
 public class interpreter{
 	private static Stack<String> _store = new Stack<String>();
 	
-	public static void interpreter(String input, String output){
+	public static void test(String input, String output){
 		ArrayList<String> inputList = new ArrayList<String>();
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(input));
@@ -259,11 +259,9 @@ public class interpreter{
 					if(isInt(sVal1)){
 						int val1 = Integer.parseInt(sVal1);
 						if(val1 == 0){
-							
 							return;
 						}
-						int val2 = Integer.parseInt(sVal2);
-						int val = val2 % val1; 
+						int val = -1 * val1; 
 						String sVal = Integer.toString(val);
 						_store.push(sVal);
 						return;
@@ -275,10 +273,19 @@ public class interpreter{
 				}
 				catch(IndexOutOfBoundsException ex){
 					_store.push(sVal1);
-					_store.push(sVal2);
 					_store.push(":error:");
 					return;
 				}
+			}
+		}else if(command.contains("swap")){
+			if(_store.isEmpty() || _store.size()==1){
+				_store.push(":error:");
+				return; 
+			}else{
+				String sVal1 = _store.pop(); 
+				String sVal2 = _store.pop();
+				_store.push(sVal1);
+				_store.push(sVal2);
 			}
 		}
 	}
@@ -298,6 +305,6 @@ public class interpreter{
 	}
 	
 	public static void main(String[] args){
-		interpreter("input.txt", "output.txt");
+		test("input.txt", "output.txt");
 	}
 }
