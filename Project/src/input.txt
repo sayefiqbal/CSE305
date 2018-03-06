@@ -1,0 +1,4 @@
+push -0 
+push -x 
+push "sayef"
+quit
