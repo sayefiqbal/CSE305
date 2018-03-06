@@ -1,7 +1,0 @@
-push 10
-neg
-neg
-push :false:
-neg
-add
-quit
