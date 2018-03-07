@@ -1,25 +1,21 @@
+
 datatype 'a stack = Stack of ('a list)
                     | Empty
   fun push (item, Stack s)        = Stack (item::s)
   fun pop (Stack (first_item::s)) = (first_item, Stack s)
   fun top (Stack (first_item::s)) = (first_item)
 
-fun interpret =
+fun interpreter (infile : string) =
   let
-    val _store = Stack nil;
-
-fun interpreter(inFile : string, outFile : string) =
-  let
-    val func = [];
-    val ins = TextIO.openIn inFile
-    (* val outs = TextIO.openOut outFile *)
-    val lineRead = TextIO.inputLine ins
-
-    fun helper(lineRead: string option) =
-      case lineRead of
-          NONE => (TextIO.closeIn ins;)
-          | SOME(c) => (c::func);
-          helper(TextIO.inputLine ins))
+  fun readlist (infile : string) = let
+    val ins = TextIO.openIn infile
+    fun loop ins =
+     case TextIO.inputLine ins of
+        SOME line => line :: loop ins
+      | NONE      => []
   in
-    helper(lineRead)
+    loop ins before TextIO.closeIn ins
+  end
+  in
+    readlist(infile)
   end
