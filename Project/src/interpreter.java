@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.EmptyStackException;
+import java.util.HashMap;
 import java.util.Stack;
 
 /**
@@ -15,6 +16,7 @@ import java.util.Stack;
 public class interpreter{
 
 	private static Stack<String> _store = new Stack<String>();
+	private static HashMap<String,String> _bind = new HashMap<String,String>();
 
 	public static void interpreter(String input, String output){
 		ArrayList<String> inputList = new ArrayList<String>();
@@ -39,7 +41,11 @@ public class interpreter{
 //				if(_store.peek()=="quit"){
 //					return;
 //				}
-				writer.write(_store.pop() + "\n");
+				String toPush = _store.pop() + "\n"; 
+				if(toPush.contains("\"")) {
+					toPush = toPush.substring(1,toPush.length()-1);
+				}
+				writer.write(toPush);
 			}
 			writer.close();
 			System.out.println("It worked");
@@ -74,9 +80,9 @@ public class interpreter{
 				else if(isInt(numPush)){
 						_store.push(numPush);
 						return;
-				}else if (numPush.contains("\"")){
-					_store.push(numPush.substring(1, numPush.length()-1));
-					return;
+//				}else if (numPush.contains("\"")){
+//					_store.push(numPush.substring(1, numPush.length()-1));
+//					return;
 				}else{
 					_store.push(numPush);
 					return;
@@ -291,9 +297,139 @@ public class interpreter{
 				_store.push(sVal1);
 				_store.push(sVal2);
 			}
+		}else if(command.contains("cat")) {
+			if(_store.isEmpty() || _store.size()==1){
+				_store.push(":error:");
+				return;
+			}else{
+				String sVal1 = _store.pop();
+				String sVal2 = _store.pop();
+				if(isString(sVal1)&&isString(sVal2)){
+					String catVal = sVal2.substring(0, sVal2.length()-1)+ sVal1.substring(1);
+					_store.push(catVal);
+				}else {
+					_store.push(sVal2);
+					_store.push(sVal1);
+					_store.push(":error:");
+				}
+			}
+		}else if(command.contains("and")) {
+			if(_store.isEmpty() || _store.size()==1){
+				_store.push(":error:");
+				return;
+			}else {
+				String sVal1 = _store.pop();
+				String sVal2 = _store.pop();
+				if(isBool(sVal1)&&isBool(sVal2)){
+					if(sVal1.equals(":true:") && sVal2.equals(":true:")) {
+						_store.push(":true:");
+					}else {
+						_store.push(":false:");
+					}
+				}else {
+					_store.push(sVal2);
+					_store.push(sVal1);
+					_store.push(":error:");
+				}
+			}
+		}else if(command.contains("or")) {
+			if(_store.isEmpty() || _store.size()==1){
+				_store.push(":error:");
+				return;
+			}else {
+				String sVal1 = _store.pop();
+				String sVal2 = _store.pop();
+				if(isBool(sVal1)&&isBool(sVal2)){
+					if(sVal1.equals(":false:") && sVal2.equals(":false:")) {
+						_store.push(":false:");
+					}else {
+						_store.push(":true:");
+					}
+				}else {
+					_store.push(sVal2);
+					_store.push(sVal1);
+					_store.push(":error:");
+				}
+			}
+		}else if(command.contains("not")) {
+			if(_store.isEmpty() || _store.size()==1){
+				_store.push(":error:");
+				return;
+			}else {
+				String sVal1 = _store.pop();
+				if(isBool(sVal1)){
+					if(sVal1.equals(":true:")) {
+						_store.push(":false:");
+					}else {
+						_store.push(":true:");
+					}
+				}else {
+					_store.push(sVal1);
+					_store.push(":error:");
+				}
+			}
+		}else if(command.contains("equal")) {
+			if(_store.isEmpty() || _store.size()==1){
+				_store.push(":error:");
+				return;
+			}else {
+				String sVal1 = _store.pop();
+				String sVal2 = _store.pop();
+				if(isInt(sVal1)&&isInt(sVal2)&&(sVal1.equals(sVal2))){
+					_store.push(":true:");
+				}else {
+					_store.push(sVal2);
+					_store.push(sVal1);
+					_store.push(":error:");
+				}
+			}
+		}else if(command.contains("lessThan")) {
+			if(_store.isEmpty() || _store.size()==1){
+				_store.push(":error:");
+				return;
+			}else {
+				String sVal1 = _store.pop();
+				String sVal2 = _store.pop();
+				if(isInt(sVal1)&&isInt(sVal2)){
+					Integer v1 = Integer.parseInt(sVal1);
+					Integer v2 = Integer.parseInt(sVal2);
+					if(v1>v2) {
+						_store.push(":true:");
+					}else {
+						_store.push(":false:");
+					}
+				}else {
+					_store.push(sVal2);
+					_store.push(sVal1);
+					_store.push(":error:");
+				}
+			}
+		}else if(command.contains("bind")) {
+			if(_store.isEmpty() || _store.size()==1){
+				_store.push(":error:");
+				return;
+			}else {
+				String sVal1 = _store.pop();
+				String sVal2 = _store.pop();
+				if(isName(sVal2)){
+					
+				}else {
+					_store.push(sVal2);
+					_store.push(sVal1);
+					_store.push(":error:");
+				}
+			}
 		}
 	}
-
+	private static boolean isName(String s) {
+		return (!(isBool(s)||isString(s)||isInt(s)||s.equals(":error:")));
+	}
+	private static boolean isBool(String s) {
+		return (s.equals(":true:") || s.equals(":false:"));
+	}
+	private static boolean isString(String s) {
+		return (s.contains("\""));
+	}
 	private static boolean isInt(String s)throws IndexOutOfBoundsException, NumberFormatException{
 	    try{
 	        Double temp = Double.parseDouble(s);
