@@ -317,7 +317,50 @@ public class interpreter {
 				String sVal1 = _store.pop();
 				String sVal2 = _store.pop();
 				try {
-					if (isInt(sVal1) && isInt(sVal2)) {
+					if (isName(sVal1) && isName(sVal2)) { // both values are names
+						if (_bind.containsKey(sVal1) && _bind.containsKey(sVal2) && isInt(_bind.get(sVal1))
+								&& isInt(_bind.get(sVal2))) {
+							int val1 = Integer.parseInt(_bind.get(sVal1));
+							int val2 = Integer.parseInt(_bind.get(sVal2));
+							int val = val1 / val2;
+							String sVal = Integer.toString(val);
+							_store.push(sVal);
+							return;
+						} else {
+							_store.push(sVal2);
+							_store.push(sVal1);
+							_store.push(":error:");
+							return;
+						}
+					} else if (isName(sVal1) && !isName(sVal2)) { // val1 is a name
+						if (_bind.containsKey(sVal1) && isInt(sVal2)) {
+							int val1 = Integer.parseInt(_bind.get(sVal1));
+							int val2 = Integer.parseInt(sVal2);
+							int val = val1 / val2;
+							String sVal = Integer.toString(val);
+							_store.push(sVal);
+							return;
+						} else {
+							_store.push(sVal2);
+							_store.push(sVal1);
+							_store.push(":error:");
+							return;
+						}
+					} else if (!isName(sVal1) && isName(sVal2)) { // val2 is a name
+						if (_bind.containsKey(sVal2) && isInt(sVal1)) {
+							int val1 = Integer.parseInt(sVal1);
+							int val2 = Integer.parseInt(_bind.get(sVal2));
+							int val = val1 / val2;
+							String sVal = Integer.toString(val);
+							_store.push(sVal);
+							return;
+						} else {
+							_store.push(sVal2);
+							_store.push(sVal1);
+							_store.push(":error:");
+							return;
+						}
+					} else if (isInt(sVal1) && isInt(sVal2)) {
 						int val1 = Integer.parseInt(sVal1);
 						if (val1 == 0) {
 							_store.push(sVal2);
@@ -351,7 +394,50 @@ public class interpreter {
 				String sVal1 = _store.pop();
 				String sVal2 = _store.pop();
 				try {
-					if (isInt(sVal1) && isInt(sVal2)) {
+					if (isName(sVal1) && isName(sVal2)) { // both values are names
+						if (_bind.containsKey(sVal1) && _bind.containsKey(sVal2) && isInt(_bind.get(sVal1))
+								&& isInt(_bind.get(sVal2))) {
+							int val1 = Integer.parseInt(_bind.get(sVal1));
+							int val2 = Integer.parseInt(_bind.get(sVal2));
+							int val = val1 % val2;
+							String sVal = Integer.toString(val);
+							_store.push(sVal);
+							return;
+						} else {
+							_store.push(sVal2);
+							_store.push(sVal1);
+							_store.push(":error:");
+							return;
+						}
+					} else if (isName(sVal1) && !isName(sVal2)) { // val1 is a name
+						if (_bind.containsKey(sVal1) && isInt(sVal2)) {
+							int val1 = Integer.parseInt(_bind.get(sVal1));
+							int val2 = Integer.parseInt(sVal2);
+							int val = val1 % val2;
+							String sVal = Integer.toString(val);
+							_store.push(sVal);
+							return;
+						} else {
+							_store.push(sVal2);
+							_store.push(sVal1);
+							_store.push(":error:");
+							return;
+						}
+					} else if (!isName(sVal1) && isName(sVal2)) { // val2 is a name
+						if (_bind.containsKey(sVal2) && isInt(sVal1)) {
+							int val1 = Integer.parseInt(sVal1);
+							int val2 = Integer.parseInt(_bind.get(sVal2));
+							int val = val1 % val2;
+							String sVal = Integer.toString(val);
+							_store.push(sVal);
+							return;
+						} else {
+							_store.push(sVal2);
+							_store.push(sVal1);
+							_store.push(":error:");
+							return;
+						}
+					} else if (isInt(sVal1) && isInt(sVal2)) {
 						int val1 = Integer.parseInt(sVal1);
 						if (val1 == 0) {
 							_store.push(sVal2);
@@ -384,7 +470,19 @@ public class interpreter {
 			} else {
 				String sVal1 = _store.pop();
 				try {
-					if (isInt(sVal1)) {
+					if (isName(sVal1)) { // both values are names
+						if (_bind.containsKey(sVal1) && isInt(_bind.get(sVal1))) {
+							int val1 = Integer.parseInt(_bind.get(sVal1));
+							int val = val1 * -1;
+							String sVal = Integer.toString(val);
+							_store.push(sVal);
+							return;
+						} else {
+							_store.push(sVal1);
+							_store.push(":error:");
+							return;
+						}
+					} else if (isInt(sVal1)) {
 						int val1 = Integer.parseInt(sVal1);
 						if (val1 == 0) {
 							return;
@@ -437,16 +535,67 @@ public class interpreter {
 			} else {
 				String sVal1 = _store.pop();
 				String sVal2 = _store.pop();
-				if (isBool(sVal1) && isBool(sVal2)) {
+				if (isName(sVal1) && isName(sVal2)) { // both values are names
+					if (_bind.containsKey(sVal1) && _bind.containsKey(sVal2) && isBool(_bind.get(sVal1))
+							&& isBool(_bind.get(sVal2))) {
+						String v1 = _bind.get(sVal1);
+						String v2 = _bind.get(sVal2);
+						if (v1.equals(":true:") && v2.equals(":true:")) {
+							_store.push(":true:");
+						} else {
+							_store.push(":false:");
+						}
+						return;
+					} else {
+						_store.push(sVal2);
+						_store.push(sVal1);
+						_store.push(":error:");
+						return;
+					}
+				} else if (isName(sVal1) && !isName(sVal2)) { // val1 is a name
+					if (_bind.containsKey(sVal1) && isBool(_bind.get(sVal1)) && isBool(sVal2)) {
+						String v1 = _bind.get(sVal1);
+						String v2 = sVal2;
+						if (v1.equals(":true:") && v2.equals(":true:")) {
+							_store.push(":true:");
+						} else {
+							_store.push(":false:");
+						}
+						return;
+					} else {
+						_store.push(sVal2);
+						_store.push(sVal1);
+						_store.push(":error:");
+						return;
+					}
+				} else if (!isName(sVal1) && isName(sVal2)) { // val2 is a name
+					if (_bind.containsKey(sVal2) && isBool(_bind.get(sVal2)) && isBool(sVal1)) {
+						String v1 = sVal1;
+						String v2 = _bind.get(sVal2);
+						if (v1.equals(":true:") && v2.equals(":true:")) {
+							_store.push(":true:");
+						} else {
+							_store.push(":false:");
+						}
+						return;
+					} else {
+						_store.push(sVal2);
+						_store.push(sVal1);
+						_store.push(":error:");
+						return;
+					}
+				} else if (isBool(sVal1) && isBool(sVal2)) {
 					if (sVal1.equals(":true:") && sVal2.equals(":true:")) {
 						_store.push(":true:");
 					} else {
 						_store.push(":false:");
 					}
+					return;
 				} else {
 					_store.push(sVal2);
 					_store.push(sVal1);
 					_store.push(":error:");
+					return;
 				}
 			}
 		} else if (command.contains("or")) {
@@ -456,16 +605,67 @@ public class interpreter {
 			} else {
 				String sVal1 = _store.pop();
 				String sVal2 = _store.pop();
-				if (isBool(sVal1) && isBool(sVal2)) {
+				if (isName(sVal1) && isName(sVal2)) { // both values are names
+					if (_bind.containsKey(sVal1) && _bind.containsKey(sVal2) && isBool(_bind.get(sVal1))
+							&& isBool(_bind.get(sVal2))) {
+						String v1 = _bind.get(sVal1);
+						String v2 = _bind.get(sVal2);
+						if (v1.equals(":false:") && v2.equals(":false:")) {
+							_store.push(":false:");
+						} else {
+							_store.push(":true:");
+						}
+						return;
+					} else {
+						_store.push(sVal2);
+						_store.push(sVal1);
+						_store.push(":error:");
+						return;
+					}
+				} else if (isName(sVal1) && !isName(sVal2)) { // val1 is a name
+					if (_bind.containsKey(sVal1) && isBool(_bind.get(sVal1)) && isBool(sVal2)) {
+						String v1 = _bind.get(sVal1);
+						String v2 = sVal2;
+						if (v1.equals(":false:") && v2.equals(":false:")) {
+							_store.push(":false:");
+						} else {
+							_store.push(":true:");
+						}
+						return;
+					} else {
+						_store.push(sVal2);
+						_store.push(sVal1);
+						_store.push(":error:");
+						return;
+					}
+				} else if (!isName(sVal1) && isName(sVal2)) { // val2 is a name
+					if (_bind.containsKey(sVal2) && isBool(_bind.get(sVal2)) && isBool(sVal1)) {
+						String v1 = sVal1;
+						String v2 = _bind.get(sVal2);
+						if (v1.equals(":false:") && v2.equals(":false:")) {
+							_store.push(":false:");
+						} else {
+							_store.push(":true:");
+						}
+						return;
+					} else {
+						_store.push(sVal2);
+						_store.push(sVal1);
+						_store.push(":error:");
+						return;
+					}
+				} else if (isBool(sVal1) && isBool(sVal2)) {
 					if (sVal1.equals(":false:") && sVal2.equals(":false:")) {
 						_store.push(":false:");
 					} else {
 						_store.push(":true:");
 					}
+					return;
 				} else {
 					_store.push(sVal2);
 					_store.push(sVal1);
 					_store.push(":error:");
+					return; 
 				}
 			}
 		} else if (command.contains("not")) {
@@ -474,15 +674,26 @@ public class interpreter {
 				return;
 			} else {
 				String sVal1 = _store.pop();
-				if (isBool(sVal1)) {
+				if(isName(sVal1) && _bind.containsKey(sVal1) && isBool(_bind.get(sVal1))) {
+					String v1 = _bind.get(sVal1); 
+					if (v1.equals(":true:")) {
+						_store.push(":false:");
+					} else {
+						_store.push(":true:");
+					}
+					return; 
+				}
+				else if (isBool(sVal1)) {
 					if (sVal1.equals(":true:")) {
 						_store.push(":false:");
 					} else {
 						_store.push(":true:");
 					}
+					return; 
 				} else {
 					_store.push(sVal1);
 					_store.push(":error:");
+					return; 
 				}
 			}
 		} else if (command.contains("equal")) {
