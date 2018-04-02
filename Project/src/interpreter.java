@@ -411,8 +411,21 @@ public class interpreter{
 			}else {
 				String sVal1 = _store.pop();
 				String sVal2 = _store.pop();
-				if(isName(sVal2)){
-					
+				if(isName(sVal2)&&!sVal1.equals(":error:")){
+					if(isName(sVal1)){
+						if(_bind.containsKey(sVal1)) {
+							String v = _bind.get(sVal1);
+							_bind.put(sVal2, v);
+							_store.push(":unit:");
+						}else {
+							_store.push(sVal2);
+							_store.push(sVal1);
+							_store.push(":error:");
+						}
+					}else {
+						_bind.put(sVal2, sVal1);
+						_store.push(":unit:");
+					}
 				}else {
 					_store.push(sVal2);
 					_store.push(sVal1);
@@ -422,7 +435,7 @@ public class interpreter{
 		}
 	}
 	private static boolean isName(String s) {
-		return (!(isBool(s)||isString(s)||isInt(s)||s.equals(":error:")));
+		return (!(isBool(s)||isString(s)||isInt(s)||s.equals(":error:")||s.equals(":unit:")));
 	}
 	private static boolean isBool(String s) {
 		return (s.equals(":true:") || s.equals(":false:"));
