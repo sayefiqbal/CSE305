@@ -14,7 +14,8 @@ import java.util.Stack;
  */
 
 public class interpreter {
-
+	
+	private final String FALSE = "FALSE";
 	private static Stack<String> _store = new Stack<String>();
 	private static HashMap<String, String> _bind = new HashMap<String, String>();
 
@@ -104,6 +105,8 @@ public class interpreter {
 				String sVal1 = _store.pop();
 				String sVal2 = _store.pop();
 				try {
+//					System.out.println("Val 1: " + _bind.get(sVal1));
+//					System.out.println("Val 2: " + (_bind.get(sVal2)));
 					if (isName(sVal1) && isName(sVal2)) { // both values are names
 						if (_bind.containsKey(sVal1) && _bind.containsKey(sVal2) && isInt(_bind.get(sVal1))
 								&& isInt(_bind.get(sVal2))) {
@@ -134,6 +137,7 @@ public class interpreter {
 							return;
 						}
 					} else if (!isName(sVal1) && isName(sVal2)) { // val2 is a name
+						System.out.println("WRONG");
 						if (_bind.containsKey(sVal2) && isInt(sVal1)) {
 							int val1 = Integer.parseInt(sVal1);
 							int val2 = Integer.parseInt(_bind.get(sVal2));
@@ -543,7 +547,7 @@ public class interpreter {
 						if (v1.equals(":true:") && v2.equals(":true:")) {
 							_store.push(":true:");
 						} else {
-							_store.push(":false:");
+							_store.push("FALSE");
 						}
 						return;
 					} else {
@@ -559,7 +563,7 @@ public class interpreter {
 						if (v1.equals(":true:") && v2.equals(":true:")) {
 							_store.push(":true:");
 						} else {
-							_store.push(":false:");
+							_store.push("FALSE");
 						}
 						return;
 					} else {
@@ -575,7 +579,7 @@ public class interpreter {
 						if (v1.equals(":true:") && v2.equals(":true:")) {
 							_store.push(":true:");
 						} else {
-							_store.push(":false:");
+							_store.push("FALSE");
 						}
 						return;
 					} else {
@@ -588,7 +592,7 @@ public class interpreter {
 					if (sVal1.equals(":true:") && sVal2.equals(":true:")) {
 						_store.push(":true:");
 					} else {
-						_store.push(":false:");
+						_store.push("FALSE");
 					}
 					return;
 				} else {
@@ -610,8 +614,8 @@ public class interpreter {
 							&& isBool(_bind.get(sVal2))) {
 						String v1 = _bind.get(sVal1);
 						String v2 = _bind.get(sVal2);
-						if (v1.equals(":false:") && v2.equals(":false:")) {
-							_store.push(":false:");
+						if (v1.equals("FALSE") && v2.equals("FALSE")) {
+							_store.push("FALSE");
 						} else {
 							_store.push(":true:");
 						}
@@ -626,8 +630,8 @@ public class interpreter {
 					if (_bind.containsKey(sVal1) && isBool(_bind.get(sVal1)) && isBool(sVal2)) {
 						String v1 = _bind.get(sVal1);
 						String v2 = sVal2;
-						if (v1.equals(":false:") && v2.equals(":false:")) {
-							_store.push(":false:");
+						if (v1.equals("FALSE") && v2.equals("FALSE")) {
+							_store.push("FALSE");
 						} else {
 							_store.push(":true:");
 						}
@@ -642,8 +646,8 @@ public class interpreter {
 					if (_bind.containsKey(sVal2) && isBool(_bind.get(sVal2)) && isBool(sVal1)) {
 						String v1 = sVal1;
 						String v2 = _bind.get(sVal2);
-						if (v1.equals(":false:") && v2.equals(":false:")) {
-							_store.push(":false:");
+						if (v1.equals("FALSE") && v2.equals("FALSE")) {
+							_store.push("FALSE");
 						} else {
 							_store.push(":true:");
 						}
@@ -655,8 +659,8 @@ public class interpreter {
 						return;
 					}
 				} else if (isBool(sVal1) && isBool(sVal2)) {
-					if (sVal1.equals(":false:") && sVal2.equals(":false:")) {
-						_store.push(":false:");
+					if (sVal1.equals("FALSE") && sVal2.equals("FALSE")) {
+						_store.push("FALSE");
 					} else {
 						_store.push(":true:");
 					}
@@ -677,7 +681,7 @@ public class interpreter {
 				if(isName(sVal1) && _bind.containsKey(sVal1) && isBool(_bind.get(sVal1))) {
 					String v1 = _bind.get(sVal1); 
 					if (v1.equals(":true:")) {
-						_store.push(":false:");
+						_store.push("FALSE");
 					} else {
 						_store.push(":true:");
 					}
@@ -685,7 +689,7 @@ public class interpreter {
 				}
 				else if (isBool(sVal1)) {
 					if (sVal1.equals(":true:")) {
-						_store.push(":false:");
+						_store.push("FALSE");
 					} else {
 						_store.push(":true:");
 					}
@@ -724,7 +728,7 @@ public class interpreter {
 					if (v1 > v2) {
 						_store.push(":true:");
 					} else {
-						_store.push(":false:");
+						_store.push("FALSE");
 					}
 				} else {
 					_store.push(sVal2);
@@ -760,6 +764,33 @@ public class interpreter {
 					_store.push(":error:");
 				}
 			}
+		} else if (command.contains("if")) {
+			if (_store.isEmpty() || _store.size() <= 2) {
+				_store.push(":error:");
+				return;
+			} else {
+				String sVal1 = _store.pop();
+				String sVal2 = _store.pop();
+				String sVal3 = _store.pop();
+				if(isName(sVal3) && isBool(_bind.get(sVal3))) { // val3 is a name and a boolean
+					if(_bind.get(sVal3).equals(":true:")) {
+						_store.push(sVal2);
+					} else {
+						_store.push(sVal1);
+					}
+				} else if(isBool(sVal3)) { // val3 is a bool 
+					if(sVal3.equals(":true:")) {
+						_store.push(sVal2);
+					} else {
+						_store.push(sVal1);
+					}
+				} else {
+					_store.push(sVal3);
+					_store.push(sVal2);
+					_store.push(sVal1);
+					_store.push(":error:");
+				}
+			}
 		}
 	}
 
@@ -768,7 +799,7 @@ public class interpreter {
 	}
 
 	private static boolean isBool(String s) {
-		return (s.equals(":true:") || s.equals(":false:"));
+		return (s.equals(":true:") || s.equals("FALSE"));
 	}
 
 	private static boolean isString(String s) {
@@ -789,6 +820,6 @@ public class interpreter {
 	}
 
 	public static void main(String[] args) {
-		interpreter("input.txt", "output.txt");
+		interpreter("src/input.txt", "src/output.txt");
 	}
 }
