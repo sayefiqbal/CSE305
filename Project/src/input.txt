@@ -1,7 +1,7 @@
-push name
-push 10
+push a
+push "Hello "
 bind
-push name
-push 11
-add
+push a
+push "World!"
+cat
 quit

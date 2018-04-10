@@ -41,9 +41,11 @@ public class interpreter {
 				// if(_store.peek()=="quit"){
 				// return;
 				// }
-				String toPush = _store.pop() + "\n";
+				String toPush = _store.pop();
 				if (toPush.contains("\"")) {
-					toPush = toPush.substring(1, toPush.length() - 1);
+					toPush = toPush.substring(1, toPush.length() - 1) + "\n";
+				}else {
+					toPush += "\n";
 				}
 				writer.write(toPush);
 			}
@@ -137,7 +139,6 @@ public class interpreter {
 							return;
 						}
 					} else if (!isName(sVal1) && isName(sVal2)) { // val2 is a name
-						System.out.println("WRONG");
 						if (_bind.containsKey(sVal2) && isInt(sVal1)) {
 							int val1 = Integer.parseInt(sVal1);
 							int val2 = Integer.parseInt(_bind.get(sVal2));
@@ -523,13 +524,53 @@ public class interpreter {
 			} else {
 				String sVal1 = _store.pop();
 				String sVal2 = _store.pop();
-				if (isString(sVal1) && isString(sVal2)) {
+				if(isName(sVal1) && isName(sVal2)) {
+					if (_bind.containsKey(sVal1) && _bind.containsKey(sVal2) && isString(_bind.get(sVal1))
+							&& isString(_bind.get(sVal2))) {
+						sVal1 = _bind.get(sVal1);
+						sVal2 = _bind.get(sVal2);
+						String catVal = sVal2.substring(0, sVal2.length() - 1) + sVal1.substring(1);
+						_store.push(catVal);
+						return; 
+					}
+					else {
+						_store.push(sVal2);
+						_store.push(sVal1);
+						_store.push(":error:");
+						return;
+					}
+				} else if(isName(sVal1) && !isName(sVal2)) {
+					if (_bind.containsKey(sVal1) && isString(_bind.get(sVal1)) && isString(sVal2)) {
+						sVal1 = _bind.get(sVal1);
+						String catVal = sVal2.substring(0, sVal2.length() - 1) + sVal1.substring(1);
+						_store.push(catVal);						
+						return; 
+					}else {
+						_store.push(sVal2);
+						_store.push(sVal1);
+						_store.push(":error:");
+						return;
+					}
+				} else if(!isName(sVal1) && isName(sVal2)) {
+					if (_bind.containsKey(sVal2) && isString(_bind.get(sVal2)) && isString(sVal1)) {
+						sVal2 = _bind.get(sVal2);
+						String catVal = sVal2.substring(0, sVal2.length() - 1) + sVal1.substring(1);
+						_store.push(catVal);
+						return; 
+					} else {
+						_store.push(sVal2);
+						_store.push(sVal1);
+						_store.push(":error:");
+						return;
+					}
+				} else if (isString(sVal1) && isString(sVal2)) {
 					String catVal = sVal2.substring(0, sVal2.length() - 1) + sVal1.substring(1);
 					_store.push(catVal);
 				} else {
 					_store.push(sVal2);
 					_store.push(sVal1);
 					_store.push(":error:");
+					return; 
 				}
 			}
 		} else if (command.contains("and")) {
@@ -592,7 +633,7 @@ public class interpreter {
 					if (sVal1.equals(":true:") && sVal2.equals(":true:")) {
 						_store.push(":true:");
 					} else {
-						_store.push("FALSE");
+						_store.push(":false:");
 					}
 					return;
 				} else {
@@ -614,8 +655,8 @@ public class interpreter {
 							&& isBool(_bind.get(sVal2))) {
 						String v1 = _bind.get(sVal1);
 						String v2 = _bind.get(sVal2);
-						if (v1.equals("FALSE") && v2.equals("FALSE")) {
-							_store.push("FALSE");
+						if (v1.equals(":false:") && v2.equals(":false:")) {
+							_store.push(":false:");
 						} else {
 							_store.push(":true:");
 						}
@@ -630,8 +671,8 @@ public class interpreter {
 					if (_bind.containsKey(sVal1) && isBool(_bind.get(sVal1)) && isBool(sVal2)) {
 						String v1 = _bind.get(sVal1);
 						String v2 = sVal2;
-						if (v1.equals("FALSE") && v2.equals("FALSE")) {
-							_store.push("FALSE");
+						if (v1.equals(":false:") && v2.equals(":false:")) {
+							_store.push(":false:");
 						} else {
 							_store.push(":true:");
 						}
@@ -646,8 +687,8 @@ public class interpreter {
 					if (_bind.containsKey(sVal2) && isBool(_bind.get(sVal2)) && isBool(sVal1)) {
 						String v1 = sVal1;
 						String v2 = _bind.get(sVal2);
-						if (v1.equals("FALSE") && v2.equals("FALSE")) {
-							_store.push("FALSE");
+						if (v1.equals(":false:") && v2.equals(":false:")) {
+							_store.push(":false:");
 						} else {
 							_store.push(":true:");
 						}
@@ -659,8 +700,8 @@ public class interpreter {
 						return;
 					}
 				} else if (isBool(sVal1) && isBool(sVal2)) {
-					if (sVal1.equals("FALSE") && sVal2.equals("FALSE")) {
-						_store.push("FALSE");
+					if (sVal1.equals(":false:") && sVal2.equals(":false:")) {
+						_store.push(":false:");
 					} else {
 						_store.push(":true:");
 					}
@@ -673,7 +714,8 @@ public class interpreter {
 				}
 			}
 		} else if (command.contains("not")) {
-			if (_store.isEmpty() || _store.size() == 1) {
+			if (_store.isEmpty()) {
+				System.out.println("MESSED");
 				_store.push(":error:");
 				return;
 			} else {
@@ -681,7 +723,7 @@ public class interpreter {
 				if(isName(sVal1) && _bind.containsKey(sVal1) && isBool(_bind.get(sVal1))) {
 					String v1 = _bind.get(sVal1); 
 					if (v1.equals(":true:")) {
-						_store.push("FALSE");
+						_store.push(":false:");
 					} else {
 						_store.push(":true:");
 					}
@@ -689,7 +731,7 @@ public class interpreter {
 				}
 				else if (isBool(sVal1)) {
 					if (sVal1.equals(":true:")) {
-						_store.push("FALSE");
+						_store.push(":false:");
 					} else {
 						_store.push(":true:");
 					}
@@ -707,12 +749,18 @@ public class interpreter {
 			} else {
 				String sVal1 = _store.pop();
 				String sVal2 = _store.pop();
-				if (isInt(sVal1) && isInt(sVal2) && (sVal1.equals(sVal2))) {
-					_store.push(":true:");
+				if (isInt(sVal1) && isInt(sVal2)) {
+					if (sVal1.equals(sVal2)) {
+						_store.push(":true:");
+					}else {
+						_store.push(":false:");
+					}
+					return; 
 				} else {
 					_store.push(sVal2);
 					_store.push(sVal1);
 					_store.push(":error:");
+					return; 
 				}
 			}
 		} else if (command.contains("lessThan")) {
@@ -728,12 +776,13 @@ public class interpreter {
 					if (v1 > v2) {
 						_store.push(":true:");
 					} else {
-						_store.push("FALSE");
+						_store.push(":false:");
 					}
 				} else {
 					_store.push(sVal2);
 					_store.push(sVal1);
 					_store.push(":error:");
+					return; 
 				}
 			}
 		} else if (command.contains("bind")) {
@@ -799,7 +848,7 @@ public class interpreter {
 	}
 
 	private static boolean isBool(String s) {
-		return (s.equals(":true:") || s.equals("FALSE"));
+		return (s.equals(":true:") || s.equals(":false:"));
 	}
 
 	private static boolean isString(String s) {
