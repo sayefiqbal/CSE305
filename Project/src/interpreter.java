@@ -50,7 +50,7 @@ public class interpreter {
 				writer.write(toPush);
 			}
 			writer.close();
-			System.out.println("It worked");
+			System.out.println("It worked");;;;;
 			return;
 
 		} catch (Exception e) {
