@@ -1,7 +1,0 @@
-push :true:
-push 7
-push 8
-push :false:
-pop
-sub
-quit

@@ -1,4 +1,4 @@
-push -0 
-push -x 
-push "sayef"
+push 7
+push :true:
+lessThan
 quit

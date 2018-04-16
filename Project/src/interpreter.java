@@ -798,19 +798,23 @@ public class interpreter {
 							String v = _bind.get(sVal1);
 							_bind.put(sVal2, v);
 							_store.push(":unit:");
+							return; 
 						} else {
 							_store.push(sVal2);
 							_store.push(sVal1);
 							_store.push(":error:");
+							return; 
 						}
 					} else {
 						_bind.put(sVal2, sVal1);
 						_store.push(":unit:");
+						return; 
 					}
 				} else {
 					_store.push(sVal2);
 					_store.push(sVal1);
 					_store.push(":error:");
+					return; 
 				}
 			}
 		} else if (command.contains("if")) {

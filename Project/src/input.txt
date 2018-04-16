@@ -1,7 +1,10 @@
 push a
-push "Hello "
+push "Sayef " 
+bind
+push b
+push a
 bind
 push a
-push "World!"
+push b
 cat
 quit
