@@ -1,10 +1,7 @@
 push a
-push "Sayef " 
-bind
-push b
-push a
+push 5
 bind
 push a
-push b
-cat
+push 0
+div
 quit

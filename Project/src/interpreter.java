@@ -18,9 +18,13 @@ public class interpreter {
 	private final String FALSE = "FALSE";
 	private static Stack<String> _store = new Stack<String>();
 	private static HashMap<String, String> _bind = new HashMap<String, String>();
+	private static ArrayList<Stack<String>> _lStack = new ArrayList<Stack<String>>(); 
+	private static ArrayList<HashMap<String, String>> _lBind = new ArrayList<HashMap<String, String>>();
 
 	public static void interpreter(String input, String output) {
 		ArrayList<String> inputList = new ArrayList<String>();
+		_lStack.add(new Stack<String>()); 
+		_lBind.add(new HashMap<String, String>());
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(input));
 			String temp;
@@ -37,17 +41,22 @@ public class interpreter {
 			for (int i = 0; i < inputList.size(); ++i) {
 				interpret(inputList.get(i));
 			}
-			while (!_store.isEmpty()) {
+			while (!_lStack.get(_lStack.size()-1).isEmpty()) {
 				// if(_store.peek()=="quit"){
 				// return;
 				// }
-				String toPush = _store.pop();
-				if (toPush.contains("\"")) {
-					toPush = toPush.substring(1, toPush.length() - 1) + "\n";
-				}else {
-					toPush += "\n";
+				String toPush = _lStack.get(_lStack.size()-1).pop();
+//				if (toPush.contains("\"")) {
+//					toPush = toPush.substring(1, toPush.length() - 1) + "\n";
+//				}else {
+//					toPush += "\n";
+//				}
+				String[] val = toPush.split("\"");
+				String sVal = ""; 
+				for(String x: val) {
+					sVal += x;
 				}
-				writer.write(toPush);
+				writer.write(sVal + "\n");
 			}
 			writer.close();
 			System.out.println("It worked");;;;;
@@ -63,93 +72,93 @@ public class interpreter {
 		if (command.contains("quit")) {
 			return;
 		}
-		// if(!_store.isEmpty() && _store.peek()==":error:"){
-		// _store.push(":error:");
+		// if(!_lStack.get(_lStack.size()-1).isEmpty() && _store.peek()==":error:"){
+		// _lStack.get(_lStack.size()-1).push(":error:");
 		// return;
 		// }
 		if (command.contains("push")) {
 			String numPush = command.substring(5, command.length());
 			try {
 				if (numPush.contains("-0")) {
-					_store.push("0");
+					_lStack.get(_lStack.size()-1).push("0");
 					return;
 				} else if (numPush.charAt(0) == '-' && !isInt(numPush.substring(1))) {
 					System.out.println("should work");
-					_store.push(":error:");
+					_lStack.get(_lStack.size()-1).push(":error:");
 					return;
 				} else if (isInt(numPush)) {
-					_store.push(numPush);
+					_lStack.get(_lStack.size()-1).push(numPush);
 					return;
 					// }else if (numPush.contains("\"")){
-					// _store.push(numPush.substring(1, numPush.length()-1));
+					// _lStack.get(_lStack.size()-1).push(numPush.substring(1, numPush.length()-1));
 					// return;
 				} else {
-					_store.push(numPush);
+					_lStack.get(_lStack.size()-1).push(numPush);
 					return;
 				}
 			} catch (IndexOutOfBoundsException ex) {
-				_store.push(":error:");
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			}
 		} else if (command.contains("pop")) {
 			try {
-				_store.pop();
+				_lStack.get(_lStack.size()-1).pop();
 				return;
 			} catch (EmptyStackException ex) {
-				_store.push(":error:");
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			}
 		} else if (command.contains("add")) {
-			if (_store.isEmpty() || _store.size() == 1) {
-				_store.push(":error:");
+			if (_lStack.get(_lStack.size()-1).isEmpty() || _lStack.get(_lStack.size()-1).size() == 1) {
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			} else {
-				String sVal1 = _store.pop();
-				String sVal2 = _store.pop();
+				String sVal1 = _lStack.get(_lStack.size()-1).pop();
+				String sVal2 = _lStack.get(_lStack.size()-1).pop();
 				try {
-//					System.out.println("Val 1: " + _bind.get(sVal1));
-//					System.out.println("Val 2: " + (_bind.get(sVal2)));
+//					System.out.println("Val 1: " + _lBind.get(_lBind.size()-1).get(sVal1));
+//					System.out.println("Val 2: " + (_lBind.get(_lBind.size()-1).get(sVal2)));
 					if (isName(sVal1) && isName(sVal2)) { // both values are names
-						if (_bind.containsKey(sVal1) && _bind.containsKey(sVal2) && isInt(_bind.get(sVal1))
-								&& isInt(_bind.get(sVal2))) {
-							int val1 = Integer.parseInt(_bind.get(sVal1));
-							int val2 = Integer.parseInt(_bind.get(sVal2));
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && _lBind.get(_lBind.size()-1).containsKey(sVal2) && isInt(_lBind.get(_lBind.size()-1).get(sVal1))
+								&& isInt(_lBind.get(_lBind.size()-1).get(sVal2))) {
+							int val1 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal1));
+							int val2 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal2));
 							int val = val1 + val2;
 							String sVal = Integer.toString(val);
-							_store.push(sVal);
+							_lStack.get(_lStack.size()-1).push(sVal);
 							return;
 						} else {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 					} else if (isName(sVal1) && !isName(sVal2)) { // val1 is a name
-						if (_bind.containsKey(sVal1) && isInt(sVal2)) {
-							int val1 = Integer.parseInt(_bind.get(sVal1));
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && isInt(sVal2)) {
+							int val1 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal1));
 							int val2 = Integer.parseInt(sVal2);
 							int val = val1 + val2;
 							String sVal = Integer.toString(val);
-							_store.push(sVal);
+							_lStack.get(_lStack.size()-1).push(sVal);
 							return;
 						} else {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 					} else if (!isName(sVal1) && isName(sVal2)) { // val2 is a name
-						if (_bind.containsKey(sVal2) && isInt(sVal1)) {
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal2) && isInt(sVal1)) {
 							int val1 = Integer.parseInt(sVal1);
-							int val2 = Integer.parseInt(_bind.get(sVal2));
+							int val2 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal2));
 							int val = val1 + val2;
 							String sVal = Integer.toString(val);
-							_store.push(sVal);
+							_lStack.get(_lStack.size()-1).push(sVal);
 							return;
 						} else {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 					} else if (isInt(sVal1) && isInt(sVal2)) { // neither value are names
@@ -157,70 +166,70 @@ public class interpreter {
 						int val2 = Integer.parseInt(sVal2);
 						int val = val1 + val2;
 						String sVal = Integer.toString(val);
-						_store.push(sVal);
+						_lStack.get(_lStack.size()-1).push(sVal);
 						return;
 					} else {
-						_store.push(sVal2);
-						_store.push(sVal1);
-						_store.push(":error:");
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
 				} catch (IndexOutOfBoundsException ex) {
-					_store.push(sVal2);
-					_store.push(sVal1);
-					_store.push(":error:");
+					_lStack.get(_lStack.size()-1).push(sVal2);
+					_lStack.get(_lStack.size()-1).push(sVal1);
+					_lStack.get(_lStack.size()-1).push(":error:");
 					return;
 				}
 			}
 		} else if (command.contains("mul")) {
-			if (_store.isEmpty() || _store.size() == 1) {
-				_store.push(":error:");
+			if (_lStack.get(_lStack.size()-1).isEmpty() || _lStack.get(_lStack.size()-1).size() == 1) {
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			} else {
-				String sVal1 = _store.pop();
-				String sVal2 = _store.pop();
+				String sVal1 = _lStack.get(_lStack.size()-1).pop();
+				String sVal2 = _lStack.get(_lStack.size()-1).pop();
 				try {
 					if (isName(sVal1) && isName(sVal2)) { // both values are names
-						if (_bind.containsKey(sVal1) && _bind.containsKey(sVal2) && isInt(_bind.get(sVal1))
-								&& isInt(_bind.get(sVal2))) {
-							int val1 = Integer.parseInt(_bind.get(sVal1));
-							int val2 = Integer.parseInt(_bind.get(sVal2));
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && _lBind.get(_lBind.size()-1).containsKey(sVal2) && isInt(_lBind.get(_lBind.size()-1).get(sVal1))
+								&& isInt(_lBind.get(_lBind.size()-1).get(sVal2))) {
+							int val1 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal1));
+							int val2 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal2));
 							int val = val1 * val2;
 							String sVal = Integer.toString(val);
-							_store.push(sVal);
+							_lStack.get(_lStack.size()-1).push(sVal);
 							return;
 						} else {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 					} else if (isName(sVal1) && !isName(sVal2)) { // val1 is a name
-						if (_bind.containsKey(sVal1) && isInt(sVal2)) {
-							int val1 = Integer.parseInt(_bind.get(sVal1));
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && isInt(sVal2)) {
+							int val1 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal1));
 							int val2 = Integer.parseInt(sVal2);
 							int val = val1 * val2;
 							String sVal = Integer.toString(val);
-							_store.push(sVal);
+							_lStack.get(_lStack.size()-1).push(sVal);
 							return;
 						} else {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 					} else if (!isName(sVal1) && isName(sVal2)) { // val2 is a name
-						if (_bind.containsKey(sVal2) && isInt(sVal1)) {
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal2) && isInt(sVal1)) {
 							int val1 = Integer.parseInt(sVal1);
-							int val2 = Integer.parseInt(_bind.get(sVal2));
+							int val2 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal2));
 							int val = val1 * val2;
 							String sVal = Integer.toString(val);
-							_store.push(sVal);
+							_lStack.get(_lStack.size()-1).push(sVal);
 							return;
 						} else {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 					} else if (isInt(sVal1) && isInt(sVal2)) {
@@ -228,70 +237,70 @@ public class interpreter {
 						int val2 = Integer.parseInt(sVal2);
 						int val = val1 * val2;
 						String sVal = Integer.toString(val);
-						_store.push(sVal);
+						_lStack.get(_lStack.size()-1).push(sVal);
 						return;
 					} else {
-						_store.push(sVal2);
-						_store.push(sVal1);
-						_store.push(":error:");
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
 				} catch (IndexOutOfBoundsException ex) {
-					_store.push(sVal2);
-					_store.push(sVal1);
-					_store.push(":error:");
+					_lStack.get(_lStack.size()-1).push(sVal2);
+					_lStack.get(_lStack.size()-1).push(sVal1);
+					_lStack.get(_lStack.size()-1).push(":error:");
 					return;
 				}
 			}
 		} else if (command.contains("sub")) {
-			if (_store.isEmpty() || _store.size() == 1) {
-				_store.push(":error:");
+			if (_lStack.get(_lStack.size()-1).isEmpty() || _lStack.get(_lStack.size()-1).size() == 1) {
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			} else {
-				String sVal1 = _store.pop();
-				String sVal2 = _store.pop();
+				String sVal1 = _lStack.get(_lStack.size()-1).pop();
+				String sVal2 = _lStack.get(_lStack.size()-1).pop();
 				try {
 					if (isName(sVal1) && isName(sVal2)) { // both values are names
-						if (_bind.containsKey(sVal1) && _bind.containsKey(sVal2) && isInt(_bind.get(sVal1))
-								&& isInt(_bind.get(sVal2))) {
-							int val1 = Integer.parseInt(_bind.get(sVal1));
-							int val2 = Integer.parseInt(_bind.get(sVal2));
-							int val = val1 - val2;
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && _lBind.get(_lBind.size()-1).containsKey(sVal2) && isInt(_lBind.get(_lBind.size()-1).get(sVal1))
+								&& isInt(_lBind.get(_lBind.size()-1).get(sVal2))) {
+							int val1 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal1));
+							int val2 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal2));
+							int val = val2 - val1;
 							String sVal = Integer.toString(val);
-							_store.push(sVal);
+							_lStack.get(_lStack.size()-1).push(sVal);
 							return;
 						} else {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 					} else if (isName(sVal1) && !isName(sVal2)) { // val1 is a name
-						if (_bind.containsKey(sVal1) && isInt(sVal2)) {
-							int val1 = Integer.parseInt(_bind.get(sVal1));
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && isInt(sVal2)) {
+							int val1 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal1));
 							int val2 = Integer.parseInt(sVal2);
-							int val = val1 - val2;
+							int val = val2 - val1;
 							String sVal = Integer.toString(val);
-							_store.push(sVal);
+							_lStack.get(_lStack.size()-1).push(sVal);
 							return;
 						} else {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 					} else if (!isName(sVal1) && isName(sVal2)) { // val2 is a name
-						if (_bind.containsKey(sVal2) && isInt(sVal1)) {
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal2) && isInt(sVal1)) {
 							int val1 = Integer.parseInt(sVal1);
-							int val2 = Integer.parseInt(_bind.get(sVal2));
-							int val = val1 - val2;
+							int val2 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal2));
+							int val = val2 - val1;
 							String sVal = Integer.toString(val);
-							_store.push(sVal);
+							_lStack.get(_lStack.size()-1).push(sVal);
 							return;
 						} else {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 					} else if (isInt(sVal1) && isInt(sVal2)) {
@@ -299,192 +308,192 @@ public class interpreter {
 						int val2 = Integer.parseInt(sVal2);
 						int val = val2 - val1;
 						String sVal = Integer.toString(val);
-						_store.push(sVal);
+						_lStack.get(_lStack.size()-1).push(sVal);
 						return;
 					} else {
-						_store.push(sVal2);
-						_store.push(sVal1);
-						_store.push(":error:");
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
 				} catch (IndexOutOfBoundsException ex) {
-					_store.push(sVal2);
-					_store.push(sVal1);
-					_store.push(":error:");
+					_lStack.get(_lStack.size()-1).push(sVal2);
+					_lStack.get(_lStack.size()-1).push(sVal1);
+					_lStack.get(_lStack.size()-1).push(":error:");
 					return;
 				}
 			}
 		} else if (command.contains("div")) {
-			if (_store.isEmpty() || _store.size() == 1) {
-				_store.push(":error:");
+			if (_lStack.get(_lStack.size()-1).isEmpty() || _lStack.get(_lStack.size()-1).size() == 1) {
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			} else {
-				String sVal1 = _store.pop();
-				String sVal2 = _store.pop();
+				String sVal1 = _lStack.get(_lStack.size()-1).pop();
+				String sVal2 = _lStack.get(_lStack.size()-1).pop();
 				try {
 					if (isName(sVal1) && isName(sVal2)) { // both values are names
-						if (_bind.containsKey(sVal1) && _bind.containsKey(sVal2) && isInt(_bind.get(sVal1))
-								&& isInt(_bind.get(sVal2))) {
-							int val1 = Integer.parseInt(_bind.get(sVal1));
-							int val2 = Integer.parseInt(_bind.get(sVal2));
-							int val = val1 / val2;
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && _lBind.get(_lBind.size()-1).containsKey(sVal2) && isInt(_lBind.get(_lBind.size()-1).get(sVal1))
+								&& isInt(_lBind.get(_lBind.size()-1).get(sVal2))) {
+							int val1 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal1));
+							int val2 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal2));
+							int val = val2 / val1;
 							String sVal = Integer.toString(val);
-							_store.push(sVal);
+							_lStack.get(_lStack.size()-1).push(sVal);
 							return;
 						} else {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 					} else if (isName(sVal1) && !isName(sVal2)) { // val1 is a name
-						if (_bind.containsKey(sVal1) && isInt(sVal2)) {
-							int val1 = Integer.parseInt(_bind.get(sVal1));
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && isInt(sVal2)) {
+							int val1 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal1));
 							int val2 = Integer.parseInt(sVal2);
-							int val = val1 / val2;
+							int val = val2 / val1;
 							String sVal = Integer.toString(val);
-							_store.push(sVal);
+							_lStack.get(_lStack.size()-1).push(sVal);
 							return;
 						} else {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 					} else if (!isName(sVal1) && isName(sVal2)) { // val2 is a name
-						if (_bind.containsKey(sVal2) && isInt(sVal1)) {
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal2) && isInt(sVal1)) {
 							int val1 = Integer.parseInt(sVal1);
-							int val2 = Integer.parseInt(_bind.get(sVal2));
-							int val = val1 / val2;
+							int val2 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal2));
+							int val = val2 / val1;
 							String sVal = Integer.toString(val);
-							_store.push(sVal);
+							_lStack.get(_lStack.size()-1).push(sVal);
 							return;
 						} else {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 					} else if (isInt(sVal1) && isInt(sVal2)) {
 						int val1 = Integer.parseInt(sVal1);
 						if (val1 == 0) {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 						int val2 = Integer.parseInt(sVal2);
 						int val = val2 / val1;
 						String sVal = Integer.toString(val);
-						_store.push(sVal);
+						_lStack.get(_lStack.size()-1).push(sVal);
 						return;
 					} else {
-						_store.push(sVal2);
-						_store.push(sVal1);
-						_store.push(":error:");
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
-				} catch (IndexOutOfBoundsException ex) {
-					_store.push(sVal2);
-					_store.push(sVal1);
-					_store.push(":error:");
+				} catch (Exception ex) {
+					_lStack.get(_lStack.size()-1).push(sVal2);
+					_lStack.get(_lStack.size()-1).push(sVal1);
+					_lStack.get(_lStack.size()-1).push(":error:");
 					return;
 				}
 			}
 		} else if (command.contains("rem")) {
-			if (_store.isEmpty() || _store.size() == 1) {
-				_store.push(":error:");
+			if (_lStack.get(_lStack.size()-1).isEmpty() || _lStack.get(_lStack.size()-1).size() == 1) {
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			} else {
-				String sVal1 = _store.pop();
-				String sVal2 = _store.pop();
+				String sVal1 = _lStack.get(_lStack.size()-1).pop();
+				String sVal2 = _lStack.get(_lStack.size()-1).pop();
 				try {
 					if (isName(sVal1) && isName(sVal2)) { // both values are names
-						if (_bind.containsKey(sVal1) && _bind.containsKey(sVal2) && isInt(_bind.get(sVal1))
-								&& isInt(_bind.get(sVal2))) {
-							int val1 = Integer.parseInt(_bind.get(sVal1));
-							int val2 = Integer.parseInt(_bind.get(sVal2));
-							int val = val1 % val2;
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && _lBind.get(_lBind.size()-1).containsKey(sVal2) && isInt(_lBind.get(_lBind.size()-1).get(sVal1))
+								&& isInt(_lBind.get(_lBind.size()-1).get(sVal2))) {
+							int val1 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal1));
+							int val2 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal2));
+							int val = val2 % val1;
 							String sVal = Integer.toString(val);
-							_store.push(sVal);
+							_lStack.get(_lStack.size()-1).push(sVal);
 							return;
 						} else {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 					} else if (isName(sVal1) && !isName(sVal2)) { // val1 is a name
-						if (_bind.containsKey(sVal1) && isInt(sVal2)) {
-							int val1 = Integer.parseInt(_bind.get(sVal1));
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && isInt(sVal2)) {
+							int val1 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal1));
 							int val2 = Integer.parseInt(sVal2);
-							int val = val1 % val2;
+							int val = val2 % val1;
 							String sVal = Integer.toString(val);
-							_store.push(sVal);
+							_lStack.get(_lStack.size()-1).push(sVal);
 							return;
 						} else {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 					} else if (!isName(sVal1) && isName(sVal2)) { // val2 is a name
-						if (_bind.containsKey(sVal2) && isInt(sVal1)) {
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal2) && isInt(sVal1)) {
 							int val1 = Integer.parseInt(sVal1);
-							int val2 = Integer.parseInt(_bind.get(sVal2));
-							int val = val1 % val2;
+							int val2 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal2));
+							int val = val2 % val1;
 							String sVal = Integer.toString(val);
-							_store.push(sVal);
+							_lStack.get(_lStack.size()-1).push(sVal);
 							return;
 						} else {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 					} else if (isInt(sVal1) && isInt(sVal2)) {
 						int val1 = Integer.parseInt(sVal1);
 						if (val1 == 0) {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 						int val2 = Integer.parseInt(sVal2);
 						int val = val2 % val1;
 						String sVal = Integer.toString(val);
-						_store.push(sVal);
+						_lStack.get(_lStack.size()-1).push(sVal);
 						return;
 					} else {
-						_store.push(sVal2);
-						_store.push(sVal1);
-						_store.push(":error:");
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
 				} catch (IndexOutOfBoundsException ex) {
-					_store.push(sVal2);
-					_store.push(sVal1);
-					_store.push(":error:");
+					_lStack.get(_lStack.size()-1).push(sVal2);
+					_lStack.get(_lStack.size()-1).push(sVal1);
+					_lStack.get(_lStack.size()-1).push(":error:");
 					return;
 				}
 			}
 		} else if (command.contains("neg")) {
-			if (_store.isEmpty()) {
-				_store.push(":error:");
+			if (_lStack.get(_lStack.size()-1).isEmpty()) {
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			} else {
-				String sVal1 = _store.pop();
+				String sVal1 = _lStack.get(_lStack.size()-1).pop();
 				try {
 					if (isName(sVal1)) { // both values are names
-						if (_bind.containsKey(sVal1) && isInt(_bind.get(sVal1))) {
-							int val1 = Integer.parseInt(_bind.get(sVal1));
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && isInt(_lBind.get(_lBind.size()-1).get(sVal1))) {
+							int val1 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal1));
 							int val = val1 * -1;
 							String sVal = Integer.toString(val);
-							_store.push(sVal);
+							_lStack.get(_lStack.size()-1).push(sVal);
 							return;
 						} else {
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return;
 						}
 					} else if (isInt(sVal1)) {
@@ -494,357 +503,371 @@ public class interpreter {
 						}
 						int val = -1 * val1;
 						String sVal = Integer.toString(val);
-						_store.push(sVal);
+						_lStack.get(_lStack.size()-1).push(sVal);
 						return;
 					} else {
-						_store.push(sVal1);
-						_store.push(":error:");
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
 				} catch (IndexOutOfBoundsException ex) {
-					_store.push(sVal1);
-					_store.push(":error:");
+					_lStack.get(_lStack.size()-1).push(sVal1);
+					_lStack.get(_lStack.size()-1).push(":error:");
 					return;
 				}
 			}
 		} else if (command.contains("swap")) {
-			if (_store.isEmpty() || _store.size() == 1) {
-				_store.push(":error:");
+			if (_lStack.get(_lStack.size()-1).isEmpty() || _lStack.get(_lStack.size()-1).size() == 1) {
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			} else {
-				String sVal1 = _store.pop();
-				String sVal2 = _store.pop();
-				_store.push(sVal1);
-				_store.push(sVal2);
+				String sVal1 = _lStack.get(_lStack.size()-1).pop();
+				String sVal2 = _lStack.get(_lStack.size()-1).pop();
+				_lStack.get(_lStack.size()-1).push(sVal1);
+				_lStack.get(_lStack.size()-1).push(sVal2);
 			}
 		} else if (command.contains("cat")) {
-			if (_store.isEmpty() || _store.size() == 1) {
-				_store.push(":error:");
+			if (_lStack.get(_lStack.size()-1).isEmpty() || _lStack.get(_lStack.size()-1).size() == 1) {
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			} else {
-				String sVal1 = _store.pop();
-				String sVal2 = _store.pop();
+				String sVal1 = _lStack.get(_lStack.size()-1).pop();
+				String sVal2 = _lStack.get(_lStack.size()-1).pop();
 				if(isName(sVal1) && isName(sVal2)) {
-					if (_bind.containsKey(sVal1) && _bind.containsKey(sVal2) && isString(_bind.get(sVal1))
-							&& isString(_bind.get(sVal2))) {
-						sVal1 = _bind.get(sVal1);
-						sVal2 = _bind.get(sVal2);
+					if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && _lBind.get(_lBind.size()-1).containsKey(sVal2) && isString(_lBind.get(_lBind.size()-1).get(sVal1))
+							&& isString(_lBind.get(_lBind.size()-1).get(sVal2))) {
+						sVal1 = _lBind.get(_lBind.size()-1).get(sVal1);
+						sVal2 = _lBind.get(_lBind.size()-1).get(sVal2);
 						String catVal = sVal2.substring(0, sVal2.length() - 1) + sVal1.substring(1);
-						_store.push(catVal);
+						_lStack.get(_lStack.size()-1).push(catVal);
 						return; 
 					}
 					else {
-						_store.push(sVal2);
-						_store.push(sVal1);
-						_store.push(":error:");
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
 				} else if(isName(sVal1) && !isName(sVal2)) {
-					if (_bind.containsKey(sVal1) && isString(_bind.get(sVal1)) && isString(sVal2)) {
-						sVal1 = _bind.get(sVal1);
+					if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && isString(_lBind.get(_lBind.size()-1).get(sVal1)) && isString(sVal2)) {
+						sVal1 = _lBind.get(_lBind.size()-1).get(sVal1);
 						String catVal = sVal2.substring(0, sVal2.length() - 1) + sVal1.substring(1);
-						_store.push(catVal);						
+						_lStack.get(_lStack.size()-1).push(catVal);						
 						return; 
 					}else {
-						_store.push(sVal2);
-						_store.push(sVal1);
-						_store.push(":error:");
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
 				} else if(!isName(sVal1) && isName(sVal2)) {
-					if (_bind.containsKey(sVal2) && isString(_bind.get(sVal2)) && isString(sVal1)) {
-						sVal2 = _bind.get(sVal2);
+					if (_lBind.get(_lBind.size()-1).containsKey(sVal2) && isString(_lBind.get(_lBind.size()-1).get(sVal2)) && isString(sVal1)) {
+						sVal2 = _lBind.get(_lBind.size()-1).get(sVal2);
 						String catVal = sVal2.substring(0, sVal2.length() - 1) + sVal1.substring(1);
-						_store.push(catVal);
+						_lStack.get(_lStack.size()-1).push(catVal);
 						return; 
 					} else {
-						_store.push(sVal2);
-						_store.push(sVal1);
-						_store.push(":error:");
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
 				} else if (isString(sVal1) && isString(sVal2)) {
 					String catVal = sVal2.substring(0, sVal2.length() - 1) + sVal1.substring(1);
-					_store.push(catVal);
+					_lStack.get(_lStack.size()-1).push(catVal);
 				} else {
-					_store.push(sVal2);
-					_store.push(sVal1);
-					_store.push(":error:");
+					_lStack.get(_lStack.size()-1).push(sVal2);
+					_lStack.get(_lStack.size()-1).push(sVal1);
+					_lStack.get(_lStack.size()-1).push(":error:");
 					return; 
 				}
 			}
 		} else if (command.contains("and")) {
-			if (_store.isEmpty() || _store.size() == 1) {
-				_store.push(":error:");
+			if (_lStack.get(_lStack.size()-1).isEmpty() || _lStack.get(_lStack.size()-1).size() == 1) {
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			} else {
-				String sVal1 = _store.pop();
-				String sVal2 = _store.pop();
+				String sVal1 = _lStack.get(_lStack.size()-1).pop();
+				String sVal2 = _lStack.get(_lStack.size()-1).pop();
 				if (isName(sVal1) && isName(sVal2)) { // both values are names
-					if (_bind.containsKey(sVal1) && _bind.containsKey(sVal2) && isBool(_bind.get(sVal1))
-							&& isBool(_bind.get(sVal2))) {
-						String v1 = _bind.get(sVal1);
-						String v2 = _bind.get(sVal2);
+					if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && _lBind.get(_lBind.size()-1).containsKey(sVal2) && isBool(_lBind.get(_lBind.size()-1).get(sVal1))
+							&& isBool(_lBind.get(_lBind.size()-1).get(sVal2))) {
+						String v1 = _lBind.get(_lBind.size()-1).get(sVal1);
+						String v2 = _lBind.get(_lBind.size()-1).get(sVal2);
 						if (v1.equals(":true:") && v2.equals(":true:")) {
-							_store.push(":true:");
+							_lStack.get(_lStack.size()-1).push(":true:");
 						} else {
-							_store.push("FALSE");
+							_lStack.get(_lStack.size()-1).push("FALSE");
 						}
 						return;
 					} else {
-						_store.push(sVal2);
-						_store.push(sVal1);
-						_store.push(":error:");
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
 				} else if (isName(sVal1) && !isName(sVal2)) { // val1 is a name
-					if (_bind.containsKey(sVal1) && isBool(_bind.get(sVal1)) && isBool(sVal2)) {
-						String v1 = _bind.get(sVal1);
+					if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && isBool(_lBind.get(_lBind.size()-1).get(sVal1)) && isBool(sVal2)) {
+						String v1 = _lBind.get(_lBind.size()-1).get(sVal1);
 						String v2 = sVal2;
 						if (v1.equals(":true:") && v2.equals(":true:")) {
-							_store.push(":true:");
+							_lStack.get(_lStack.size()-1).push(":true:");
 						} else {
-							_store.push("FALSE");
+							_lStack.get(_lStack.size()-1).push("FALSE");
 						}
 						return;
 					} else {
-						_store.push(sVal2);
-						_store.push(sVal1);
-						_store.push(":error:");
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
 				} else if (!isName(sVal1) && isName(sVal2)) { // val2 is a name
-					if (_bind.containsKey(sVal2) && isBool(_bind.get(sVal2)) && isBool(sVal1)) {
+					if (_lBind.get(_lBind.size()-1).containsKey(sVal2) && isBool(_lBind.get(_lBind.size()-1).get(sVal2)) && isBool(sVal1)) {
 						String v1 = sVal1;
-						String v2 = _bind.get(sVal2);
+						String v2 = _lBind.get(_lBind.size()-1).get(sVal2);
 						if (v1.equals(":true:") && v2.equals(":true:")) {
-							_store.push(":true:");
+							_lStack.get(_lStack.size()-1).push(":true:");
 						} else {
-							_store.push("FALSE");
+							_lStack.get(_lStack.size()-1).push("FALSE");
 						}
 						return;
 					} else {
-						_store.push(sVal2);
-						_store.push(sVal1);
-						_store.push(":error:");
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
 				} else if (isBool(sVal1) && isBool(sVal2)) {
 					if (sVal1.equals(":true:") && sVal2.equals(":true:")) {
-						_store.push(":true:");
+						_lStack.get(_lStack.size()-1).push(":true:");
 					} else {
-						_store.push(":false:");
+						_lStack.get(_lStack.size()-1).push(":false:");
 					}
 					return;
 				} else {
-					_store.push(sVal2);
-					_store.push(sVal1);
-					_store.push(":error:");
+					_lStack.get(_lStack.size()-1).push(sVal2);
+					_lStack.get(_lStack.size()-1).push(sVal1);
+					_lStack.get(_lStack.size()-1).push(":error:");
 					return;
 				}
 			}
 		} else if (command.contains("or")) {
-			if (_store.isEmpty() || _store.size() == 1) {
-				_store.push(":error:");
+			if (_lStack.get(_lStack.size()-1).isEmpty() || _lStack.get(_lStack.size()-1).size() == 1) {
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			} else {
-				String sVal1 = _store.pop();
-				String sVal2 = _store.pop();
+				String sVal1 = _lStack.get(_lStack.size()-1).pop();
+				String sVal2 = _lStack.get(_lStack.size()-1).pop();
 				if (isName(sVal1) && isName(sVal2)) { // both values are names
-					if (_bind.containsKey(sVal1) && _bind.containsKey(sVal2) && isBool(_bind.get(sVal1))
-							&& isBool(_bind.get(sVal2))) {
-						String v1 = _bind.get(sVal1);
-						String v2 = _bind.get(sVal2);
+					if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && _lBind.get(_lBind.size()-1).containsKey(sVal2) && isBool(_lBind.get(_lBind.size()-1).get(sVal1))
+							&& isBool(_lBind.get(_lBind.size()-1).get(sVal2))) {
+						String v1 = _lBind.get(_lBind.size()-1).get(sVal1);
+						String v2 = _lBind.get(_lBind.size()-1).get(sVal2);
 						if (v1.equals(":false:") && v2.equals(":false:")) {
-							_store.push(":false:");
+							_lStack.get(_lStack.size()-1).push(":false:");
 						} else {
-							_store.push(":true:");
+							_lStack.get(_lStack.size()-1).push(":true:");
 						}
 						return;
 					} else {
-						_store.push(sVal2);
-						_store.push(sVal1);
-						_store.push(":error:");
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
 				} else if (isName(sVal1) && !isName(sVal2)) { // val1 is a name
-					if (_bind.containsKey(sVal1) && isBool(_bind.get(sVal1)) && isBool(sVal2)) {
-						String v1 = _bind.get(sVal1);
+					if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && isBool(_lBind.get(_lBind.size()-1).get(sVal1)) && isBool(sVal2)) {
+						String v1 = _lBind.get(_lBind.size()-1).get(sVal1);
 						String v2 = sVal2;
 						if (v1.equals(":false:") && v2.equals(":false:")) {
-							_store.push(":false:");
+							_lStack.get(_lStack.size()-1).push(":false:");
 						} else {
-							_store.push(":true:");
+							_lStack.get(_lStack.size()-1).push(":true:");
 						}
 						return;
 					} else {
-						_store.push(sVal2);
-						_store.push(sVal1);
-						_store.push(":error:");
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
 				} else if (!isName(sVal1) && isName(sVal2)) { // val2 is a name
-					if (_bind.containsKey(sVal2) && isBool(_bind.get(sVal2)) && isBool(sVal1)) {
+					if (_lBind.get(_lBind.size()-1).containsKey(sVal2) && isBool(_lBind.get(_lBind.size()-1).get(sVal2)) && isBool(sVal1)) {
 						String v1 = sVal1;
-						String v2 = _bind.get(sVal2);
+						String v2 = _lBind.get(_lBind.size()-1).get(sVal2);
 						if (v1.equals(":false:") && v2.equals(":false:")) {
-							_store.push(":false:");
+							_lStack.get(_lStack.size()-1).push(":false:");
 						} else {
-							_store.push(":true:");
+							_lStack.get(_lStack.size()-1).push(":true:");
 						}
 						return;
 					} else {
-						_store.push(sVal2);
-						_store.push(sVal1);
-						_store.push(":error:");
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
 				} else if (isBool(sVal1) && isBool(sVal2)) {
 					if (sVal1.equals(":false:") && sVal2.equals(":false:")) {
-						_store.push(":false:");
+						_lStack.get(_lStack.size()-1).push(":false:");
 					} else {
-						_store.push(":true:");
+						_lStack.get(_lStack.size()-1).push(":true:");
 					}
 					return;
 				} else {
-					_store.push(sVal2);
-					_store.push(sVal1);
-					_store.push(":error:");
+					_lStack.get(_lStack.size()-1).push(sVal2);
+					_lStack.get(_lStack.size()-1).push(sVal1);
+					_lStack.get(_lStack.size()-1).push(":error:");
 					return; 
 				}
 			}
 		} else if (command.contains("not")) {
-			if (_store.isEmpty()) {
+			if (_lStack.get(_lStack.size()-1).isEmpty()) {
 				System.out.println("MESSED");
-				_store.push(":error:");
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			} else {
-				String sVal1 = _store.pop();
-				if(isName(sVal1) && _bind.containsKey(sVal1) && isBool(_bind.get(sVal1))) {
-					String v1 = _bind.get(sVal1); 
+				String sVal1 = _lStack.get(_lStack.size()-1).pop();
+				if(isName(sVal1) && _lBind.get(_lBind.size()-1).containsKey(sVal1) && isBool(_lBind.get(_lBind.size()-1).get(sVal1))) {
+					String v1 = _lBind.get(_lBind.size()-1).get(sVal1); 
 					if (v1.equals(":true:")) {
-						_store.push(":false:");
+						_lStack.get(_lStack.size()-1).push(":false:");
 					} else {
-						_store.push(":true:");
+						_lStack.get(_lStack.size()-1).push(":true:");
 					}
 					return; 
 				}
 				else if (isBool(sVal1)) {
 					if (sVal1.equals(":true:")) {
-						_store.push(":false:");
+						_lStack.get(_lStack.size()-1).push(":false:");
 					} else {
-						_store.push(":true:");
+						_lStack.get(_lStack.size()-1).push(":true:");
 					}
 					return; 
 				} else {
-					_store.push(sVal1);
-					_store.push(":error:");
+					_lStack.get(_lStack.size()-1).push(sVal1);
+					_lStack.get(_lStack.size()-1).push(":error:");
 					return; 
 				}
 			}
 		} else if (command.contains("equal")) {
-			if (_store.isEmpty() || _store.size() == 1) {
-				_store.push(":error:");
+			if (_lStack.get(_lStack.size()-1).isEmpty() || _lStack.get(_lStack.size()-1).size() == 1) {
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			} else {
-				String sVal1 = _store.pop();
-				String sVal2 = _store.pop();
+				String sVal1 = _lStack.get(_lStack.size()-1).pop();
+				String sVal2 = _lStack.get(_lStack.size()-1).pop();
 				if (isInt(sVal1) && isInt(sVal2)) {
 					if (sVal1.equals(sVal2)) {
-						_store.push(":true:");
+						_lStack.get(_lStack.size()-1).push(":true:");
 					}else {
-						_store.push(":false:");
+						_lStack.get(_lStack.size()-1).push(":false:");
 					}
 					return; 
 				} else {
-					_store.push(sVal2);
-					_store.push(sVal1);
-					_store.push(":error:");
+					_lStack.get(_lStack.size()-1).push(sVal2);
+					_lStack.get(_lStack.size()-1).push(sVal1);
+					_lStack.get(_lStack.size()-1).push(":error:");
 					return; 
 				}
 			}
 		} else if (command.contains("lessThan")) {
-			if (_store.isEmpty() || _store.size() == 1) {
-				_store.push(":error:");
+			if (_lStack.get(_lStack.size()-1).isEmpty() || _lStack.get(_lStack.size()-1).size() == 1) {
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			} else {
-				String sVal1 = _store.pop();
-				String sVal2 = _store.pop();
+				String sVal1 = _lStack.get(_lStack.size()-1).pop();
+				String sVal2 = _lStack.get(_lStack.size()-1).pop();
 				if (isInt(sVal1) && isInt(sVal2)) {
 					Integer v1 = Integer.parseInt(sVal1);
 					Integer v2 = Integer.parseInt(sVal2);
 					if (v1 > v2) {
-						_store.push(":true:");
+						_lStack.get(_lStack.size()-1).push(":true:");
 					} else {
-						_store.push(":false:");
+						_lStack.get(_lStack.size()-1).push(":false:");
 					}
 				} else {
-					_store.push(sVal2);
-					_store.push(sVal1);
-					_store.push(":error:");
+					_lStack.get(_lStack.size()-1).push(sVal2);
+					_lStack.get(_lStack.size()-1).push(sVal1);
+					_lStack.get(_lStack.size()-1).push(":error:");
 					return; 
 				}
 			}
 		} else if (command.contains("bind")) {
-			if (_store.isEmpty() || _store.size() == 1) {
-				_store.push(":error:");
+			if (_lStack.get(_lStack.size()-1).isEmpty() || _lStack.get(_lStack.size()-1).size() == 1) {
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			} else {
-				String sVal1 = _store.pop();
-				String sVal2 = _store.pop();
+				String sVal1 = _lStack.get(_lStack.size()-1).pop();
+				String sVal2 = _lStack.get(_lStack.size()-1).pop();
 				if (isName(sVal2) && !sVal1.equals(":error:")) {
 					if (isName(sVal1)) {
-						if (_bind.containsKey(sVal1)) {
-							String v = _bind.get(sVal1);
-							_bind.put(sVal2, v);
-							_store.push(":unit:");
+						if (_lBind.get(_lBind.size()-1).containsKey(sVal1)) {
+							String v = _lBind.get(_lBind.size()-1).get(sVal1);
+							_lBind.get(_lBind.size()-1).put(sVal2, v);
+							_lStack.get(_lStack.size()-1).push(":unit:");
 							return; 
 						} else {
-							_store.push(sVal2);
-							_store.push(sVal1);
-							_store.push(":error:");
+							_lStack.get(_lStack.size()-1).push(sVal2);
+							_lStack.get(_lStack.size()-1).push(sVal1);
+							_lStack.get(_lStack.size()-1).push(":error:");
 							return; 
 						}
 					} else {
-						_bind.put(sVal2, sVal1);
-						_store.push(":unit:");
+						_lBind.get(_lBind.size()-1).put(sVal2, sVal1);
+						_lStack.get(_lStack.size()-1).push(":unit:");
 						return; 
 					}
 				} else {
-					_store.push(sVal2);
-					_store.push(sVal1);
-					_store.push(":error:");
+					_lStack.get(_lStack.size()-1).push(sVal2);
+					_lStack.get(_lStack.size()-1).push(sVal1);
+					_lStack.get(_lStack.size()-1).push(":error:");
 					return; 
 				}
 			}
 		} else if (command.contains("if")) {
-			if (_store.isEmpty() || _store.size() <= 2) {
-				_store.push(":error:");
+			if (_lStack.get(_lStack.size()-1).isEmpty() || _lStack.get(_lStack.size()-1).size() <= 2) {
+				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			} else {
-				String sVal1 = _store.pop();
-				String sVal2 = _store.pop();
-				String sVal3 = _store.pop();
-				if(isName(sVal3) && isBool(_bind.get(sVal3))) { // val3 is a name and a boolean
-					if(_bind.get(sVal3).equals(":true:")) {
-						_store.push(sVal2);
+				String sVal1 = _lStack.get(_lStack.size()-1).pop();
+				String sVal2 = _lStack.get(_lStack.size()-1).pop();
+				String sVal3 = _lStack.get(_lStack.size()-1).pop();
+				if(isName(sVal3) && isBool(_lBind.get(_lBind.size()-1).get(sVal3))) { // val3 is a name and a boolean
+					if(_lBind.get(_lBind.size()-1).get(sVal3).equals(":true:")) {
+						_lStack.get(_lStack.size()-1).push(sVal2);
 					} else {
-						_store.push(sVal1);
+						_lStack.get(_lStack.size()-1).push(sVal1);
 					}
 				} else if(isBool(sVal3)) { // val3 is a bool 
 					if(sVal3.equals(":true:")) {
-						_store.push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal2);
 					} else {
-						_store.push(sVal1);
+						_lStack.get(_lStack.size()-1).push(sVal1);
 					}
 				} else {
-					_store.push(sVal3);
-					_store.push(sVal2);
-					_store.push(sVal1);
-					_store.push(":error:");
+					_lStack.get(_lStack.size()-1).push(sVal3);
+					_lStack.get(_lStack.size()-1).push(sVal2);
+					_lStack.get(_lStack.size()-1).push(sVal1);
+					_lStack.get(_lStack.size()-1).push(":error:");
 				}
 			}
+		} else if (command.contains("let")) {
+			_lStack.add(new Stack<String>()); 
+			_lBind.add((HashMap<String, String>) _lBind.get(_lBind.size()-1).clone());
+			_lStack.get(_lStack.size()-2).push("let");
+			return; 
+		} else if (command.contains("end")) {
+			if(_lStack.get(_lStack.size()-2).peek().equals(("let"))) {
+				_lStack.get(_lStack.size()-2).pop();
+				String valP = _lStack.get(_lStack.size()-1).pop(); 
+				_lStack.get(_lStack.size()-2).push(valP);
+				_lStack.remove(_lStack.get(_lStack.size()-1));
+				_lBind.remove(_lBind.get(_lBind.size()-1));
+			}
 		}
+	
 	}
 
 	private static boolean isName(String s) {
