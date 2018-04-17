@@ -14,16 +14,17 @@ import java.util.Stack;
  */
 
 public class interpreter {
-	
-	private final String FALSE = "FALSE";
+
+	// private final String :false: = ":false:";
 	private static Stack<String> _store = new Stack<String>();
 	private static HashMap<String, String> _bind = new HashMap<String, String>();
-	private static ArrayList<Stack<String>> _lStack = new ArrayList<Stack<String>>(); 
+	private static ArrayList<Stack<String>> _lStack = new ArrayList<Stack<String>>();
 	private static ArrayList<HashMap<String, String>> _lBind = new ArrayList<HashMap<String, String>>();
+	// private static HashMap<String,String> _commands
 
 	public static void interpreter(String input, String output) {
 		ArrayList<String> inputList = new ArrayList<String>();
-		_lStack.add(new Stack<String>()); 
+		_lStack.add(new Stack<String>());
 		_lBind.add(new HashMap<String, String>());
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(input));
@@ -41,25 +42,29 @@ public class interpreter {
 			for (int i = 0; i < inputList.size(); ++i) {
 				interpret(inputList.get(i));
 			}
-			while (!_lStack.get(_lStack.size()-1).isEmpty()) {
+			while (!_lStack.get(_lStack.size() - 1).isEmpty()) {
 				// if(_store.peek()=="quit"){
 				// return;
 				// }
-				String toPush = _lStack.get(_lStack.size()-1).pop();
-//				if (toPush.contains("\"")) {
-//					toPush = toPush.substring(1, toPush.length() - 1) + "\n";
-//				}else {
-//					toPush += "\n";
-//				}
+				String toPush = _lStack.get(_lStack.size() - 1).pop();
+				// if (toPush.contains("\"")) {
+				// toPush = toPush.substring(1, toPush.length() - 1) + "\n";
+				// }else {
+				// toPush += "\n";
+				// }
 				String[] val = toPush.split("\"");
-				String sVal = ""; 
-				for(String x: val) {
+				String sVal = "";
+				for (String x : val) {
 					sVal += x;
 				}
 				writer.write(sVal + "\n");
 			}
 			writer.close();
-			System.out.println("It worked");;;;;
+			System.out.println("It worked");
+			;
+			;
+			;
+			;
 			return;
 
 		} catch (Exception e) {
@@ -96,7 +101,7 @@ public class interpreter {
 					_lStack.get(_lStack.size()-1).push(numPush);
 					return;
 				}
-			} catch (IndexOutOfBoundsException ex) {
+			} catch (Exception ex) {
 				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			}
@@ -104,7 +109,7 @@ public class interpreter {
 			try {
 				_lStack.get(_lStack.size()-1).pop();
 				return;
-			} catch (EmptyStackException ex) {
+			} catch (Exception ex) {
 				_lStack.get(_lStack.size()-1).push(":error:");
 				return;
 			}
@@ -174,7 +179,7 @@ public class interpreter {
 						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
-				} catch (IndexOutOfBoundsException ex) {
+				} catch (Exception ex) {
 					_lStack.get(_lStack.size()-1).push(sVal2);
 					_lStack.get(_lStack.size()-1).push(sVal1);
 					_lStack.get(_lStack.size()-1).push(":error:");
@@ -245,7 +250,7 @@ public class interpreter {
 						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
-				} catch (IndexOutOfBoundsException ex) {
+				} catch (Exception ex) {
 					_lStack.get(_lStack.size()-1).push(sVal2);
 					_lStack.get(_lStack.size()-1).push(sVal1);
 					_lStack.get(_lStack.size()-1).push(":error:");
@@ -316,7 +321,7 @@ public class interpreter {
 						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
-				} catch (IndexOutOfBoundsException ex) {
+				} catch (Exception ex) {
 					_lStack.get(_lStack.size()-1).push(sVal2);
 					_lStack.get(_lStack.size()-1).push(sVal1);
 					_lStack.get(_lStack.size()-1).push(":error:");
@@ -470,7 +475,7 @@ public class interpreter {
 						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
-				} catch (IndexOutOfBoundsException ex) {
+				} catch (Exception ex) {
 					_lStack.get(_lStack.size()-1).push(sVal2);
 					_lStack.get(_lStack.size()-1).push(sVal1);
 					_lStack.get(_lStack.size()-1).push(":error:");
@@ -510,7 +515,7 @@ public class interpreter {
 						_lStack.get(_lStack.size()-1).push(":error:");
 						return;
 					}
-				} catch (IndexOutOfBoundsException ex) {
+				} catch (Exception ex) {
 					_lStack.get(_lStack.size()-1).push(sVal1);
 					_lStack.get(_lStack.size()-1).push(":error:");
 					return;
@@ -597,7 +602,7 @@ public class interpreter {
 						if (v1.equals(":true:") && v2.equals(":true:")) {
 							_lStack.get(_lStack.size()-1).push(":true:");
 						} else {
-							_lStack.get(_lStack.size()-1).push("FALSE");
+							_lStack.get(_lStack.size()-1).push(":false:");
 						}
 						return;
 					} else {
@@ -613,7 +618,7 @@ public class interpreter {
 						if (v1.equals(":true:") && v2.equals(":true:")) {
 							_lStack.get(_lStack.size()-1).push(":true:");
 						} else {
-							_lStack.get(_lStack.size()-1).push("FALSE");
+							_lStack.get(_lStack.size()-1).push(":false:");
 						}
 						return;
 					} else {
@@ -629,7 +634,7 @@ public class interpreter {
 						if (v1.equals(":true:") && v2.equals(":true:")) {
 							_lStack.get(_lStack.size()-1).push(":true:");
 						} else {
-							_lStack.get(_lStack.size()-1).push("FALSE");
+							_lStack.get(_lStack.size()-1).push(":false:");
 						}
 						return;
 					} else {
@@ -758,6 +763,56 @@ public class interpreter {
 			} else {
 				String sVal1 = _lStack.get(_lStack.size()-1).pop();
 				String sVal2 = _lStack.get(_lStack.size()-1).pop();
+				if (isName(sVal1) && isName(sVal2)) { // both values are names
+					if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && _lBind.get(_lBind.size()-1).containsKey(sVal2) && isInt(_lBind.get(_lBind.size()-1).get(sVal1))
+							&& isInt(_lBind.get(_lBind.size()-1).get(sVal2))) {
+						int val1 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal1));
+						int val2 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal2));
+						if (val1 == (val2)) {
+							_lStack.get(_lStack.size()-1).push(":true:");
+						}else {
+							_lStack.get(_lStack.size()-1).push(":false:");
+						}
+						return;
+					} else {
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
+						return;
+					}
+				} else if (isName(sVal1) && !isName(sVal2)) { // val1 is a name
+					if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && isInt(sVal2)) {
+						int val1 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal1));
+						int val2 = Integer.parseInt(sVal2);
+						if (val1 == (val2)) {
+							_lStack.get(_lStack.size()-1).push(":true:");
+						}else {
+							_lStack.get(_lStack.size()-1).push(":false:");
+						}
+						return;
+					} else {
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
+						return;
+					}
+				} else if (!isName(sVal1) && isName(sVal2)) { // val2 is a name
+					if (_lBind.get(_lBind.size()-1).containsKey(sVal2) && isInt(sVal1)) {
+						int val1 = Integer.parseInt(sVal1);
+						int val2 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal2));
+						if (val1 == (val2)) {
+							_lStack.get(_lStack.size()-1).push(":true:");
+						}else {
+							_lStack.get(_lStack.size()-1).push(":false:");
+						}
+						return;
+					} else {
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
+						return;
+					}
+				}
 				if (isInt(sVal1) && isInt(sVal2)) {
 					if (sVal1.equals(sVal2)) {
 						_lStack.get(_lStack.size()-1).push(":true:");
@@ -779,6 +834,56 @@ public class interpreter {
 			} else {
 				String sVal1 = _lStack.get(_lStack.size()-1).pop();
 				String sVal2 = _lStack.get(_lStack.size()-1).pop();
+				if (isName(sVal1) && isName(sVal2)) { // both values are names
+					if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && _lBind.get(_lBind.size()-1).containsKey(sVal2) && isInt(_lBind.get(_lBind.size()-1).get(sVal1))
+							&& isInt(_lBind.get(_lBind.size()-1).get(sVal2))) {
+						int val1 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal1));
+						int val2 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal2));
+						if (val1 > val2) {
+							_lStack.get(_lStack.size()-1).push(":true:");
+						} else {
+							_lStack.get(_lStack.size()-1).push(":false:");
+						}
+						return;
+					} else {
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
+						return;
+					}
+				} else if (isName(sVal1) && !isName(sVal2)) { // val1 is a name
+					if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && isInt(sVal2)) {
+						int val1 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal1));
+						int val2 = Integer.parseInt(sVal2);
+						if (val1 > val2) {
+							_lStack.get(_lStack.size()-1).push(":true:");
+						} else {
+							_lStack.get(_lStack.size()-1).push(":false:");
+						}
+						return;
+					} else {
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
+						return;
+					}
+				} else if (!isName(sVal1) && isName(sVal2)) { // val2 is a name
+					if (_lBind.get(_lBind.size()-1).containsKey(sVal2) && isInt(sVal1)) {
+						int val1 = Integer.parseInt(sVal1);
+						int val2 = Integer.parseInt(_lBind.get(_lBind.size()-1).get(sVal2));
+						if (val1 > val2) {
+							_lStack.get(_lStack.size()-1).push(":true:");
+						} else {
+							_lStack.get(_lStack.size()-1).push(":false:");
+						}
+						return;
+					} else {
+						_lStack.get(_lStack.size()-1).push(sVal2);
+						_lStack.get(_lStack.size()-1).push(sVal1);
+						_lStack.get(_lStack.size()-1).push(":error:");
+						return;
+					}
+				}
 				if (isInt(sVal1) && isInt(sVal2)) {
 					Integer v1 = Integer.parseInt(sVal1);
 					Integer v2 = Integer.parseInt(sVal2);
@@ -834,6 +939,24 @@ public class interpreter {
 				String sVal1 = _lStack.get(_lStack.size()-1).pop();
 				String sVal2 = _lStack.get(_lStack.size()-1).pop();
 				String sVal3 = _lStack.get(_lStack.size()-1).pop();
+//				if (isName(sVal1) && isName(sVal2) && isName(sVal3)) { // both values are names
+//					if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && _lBind.get(_lBind.size()-1).containsKey(sVal2) && _lBind.get(_lBind.size()-1).containsKey(sVal2) && isBool(_lBind.get(_lBind.size()-1).get(sVal1))
+//							&& isBool(_lBind.get(_lBind.size()-1).get(sVal2)) && isBool(_lBind.get(_lBind.size()-1).get(sVal3))) {
+//						String v1 = _lBind.get(_lBind.size()-1).get(sVal1);
+//						String v2 = _lBind.get(_lBind.size()-1).get(sVal2);
+//						String v3 = _lBind.get(_lBind.size()-1).get(sVal2);
+//						if(_lBind.get(_lBind.size()-1).get(sVal3).equals(":true:")) {
+//							_lStack.get(_lStack.size()-1).push(v2);
+//						} else {
+//							_lStack.get(_lStack.size()-1).push(v1);
+//						}
+//						return;
+//					} else {
+//						_lStack.get(_lStack.size()-1).push(sVal2);
+//						_lStack.get(_lStack.size()-1).push(sVal1);
+//						_lStack.get(_lStack.size()-1).push(":error:");
+//						return;
+//					}
 				if(isName(sVal3) && isBool(_lBind.get(_lBind.size()-1).get(sVal3))) { // val3 is a name and a boolean
 					if(_lBind.get(_lBind.size()-1).get(sVal3).equals(":true:")) {
 						_lStack.get(_lStack.size()-1).push(sVal2);
@@ -866,6 +989,10 @@ public class interpreter {
 				_lStack.remove(_lStack.get(_lStack.size()-1));
 				_lBind.remove(_lBind.get(_lBind.size()-1));
 			}
+		}
+		else if (command.contains("fun")) {
+			String[] v = command.split(" ");
+			
 		}
 	
 	}

@@ -1,7 +1,9 @@
 push a
 push 5
 bind
+pop
+push :false:
+push 4
 push a
-push 0
-div
+if
 quit
