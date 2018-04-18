@@ -17,10 +17,14 @@ public class interpreter {
 
 	// private final String :false: = ":false:";
 	private static Stack<String> _store = new Stack<String>();
-	private static HashMap<String, String> _bind = new HashMap<String, String>();
+	private static HashMap<String, HashMap<String, String>> _bind = new HashMap<String, HashMap<String, String>>();
 	private static ArrayList<Stack<String>> _lStack = new ArrayList<Stack<String>>();
 	private static ArrayList<HashMap<String, String>> _lBind = new ArrayList<HashMap<String, String>>();
-	// private static HashMap<String,String> _commands
+//	private static ArrayList<HashMap<String, String>> _lClone = new ArrayList<HashMap<String, String>>();
+	private static ArrayList<HashMap<String, ArrayList<String>>> _lFun = new ArrayList<HashMap<String, ArrayList<String>>>();
+	private static boolean inFun = false; 
+	private static boolean inLet = false; 
+	private static int YO = 0; 
 
 	public static void interpreter(String input, String output) {
 		ArrayList<String> inputList = new ArrayList<String>();
@@ -81,14 +85,57 @@ public class interpreter {
 		// _lStack.get(_lStack.size()-1).push(":error:");
 		// return;
 		// }
-		if (command.contains("push")) {
+		if(inFun) {
+			if(command.equals("funEnd")) {
+				_bind.put(_lStack.get(_lStack.size()-1).peek(), (HashMap<String, String>) _lBind.get(_lBind.size()-1).clone());
+				System.out.println(_lStack.get(_lStack.size()-1).peek());
+				_lStack.get(_lStack.size()-2).push(":unit:");
+//				System.out.println(_lStack.get(_lStack.size()-1));
+				_lStack.remove(_lStack.get(_lStack.size()-1));
+				inFun = false;
+				YO = _lBind.size()-1;
+				return; 
+			}else {
+				ArrayList<String> temp = _lFun.get(_lFun.size()-1).get(_lStack.get(_lStack.size()-1).peek());
+//				System.out.println(_lStack.get(_lStack.size()-1));
+				temp.add(command);
+//				_lFun.get(_lFun.size()-1).put(_lStack.get(_lStack.size()-1).peek(), temp);
+				return; 
+			}
+		} else if (command.contains("fun ")) {
+			String[] v = command.split(" ");
+			inFun = true;
+			if(inLet) {
+				_store.push(v[1]);
+			}
+//			System.out.println(v);/
+			try {
+				if(_lFun.get(_lStack.size()-1)==null) {
+				
+				}
+				ArrayList<String> method = new ArrayList<String>();
+				method.add(v[2]);
+				_lFun.get(_lFun.size()-1).put(v[1], method);
+				Stack<String> toP = new Stack<String>();
+				toP.push(v[1]);
+				_lStack.add(toP);
+//				System.out.println("HERE");
+			}catch(Exception c) {
+				_lFun.add(new HashMap<String,ArrayList<String>>());
+				ArrayList<String> method = new ArrayList<String>();
+				method.add(v[2]);
+				_lFun.get(_lFun.size()-1).put(v[1], method);
+				Stack<String> toP = new Stack<String>();
+				toP.push(v[1]);
+				_lStack.add(toP);
+			} 
+		} else if (command.contains("push")) {
 			String numPush = command.substring(5, command.length());
 			try {
 				if (numPush.contains("-0")) {
 					_lStack.get(_lStack.size()-1).push("0");
 					return;
 				} else if (numPush.charAt(0) == '-' && !isInt(numPush.substring(1))) {
-					System.out.println("should work");
 					_lStack.get(_lStack.size()-1).push(":error:");
 					return;
 				} else if (isInt(numPush)) {
@@ -939,24 +986,6 @@ public class interpreter {
 				String sVal1 = _lStack.get(_lStack.size()-1).pop();
 				String sVal2 = _lStack.get(_lStack.size()-1).pop();
 				String sVal3 = _lStack.get(_lStack.size()-1).pop();
-//				if (isName(sVal1) && isName(sVal2) && isName(sVal3)) { // both values are names
-//					if (_lBind.get(_lBind.size()-1).containsKey(sVal1) && _lBind.get(_lBind.size()-1).containsKey(sVal2) && _lBind.get(_lBind.size()-1).containsKey(sVal2) && isBool(_lBind.get(_lBind.size()-1).get(sVal1))
-//							&& isBool(_lBind.get(_lBind.size()-1).get(sVal2)) && isBool(_lBind.get(_lBind.size()-1).get(sVal3))) {
-//						String v1 = _lBind.get(_lBind.size()-1).get(sVal1);
-//						String v2 = _lBind.get(_lBind.size()-1).get(sVal2);
-//						String v3 = _lBind.get(_lBind.size()-1).get(sVal2);
-//						if(_lBind.get(_lBind.size()-1).get(sVal3).equals(":true:")) {
-//							_lStack.get(_lStack.size()-1).push(v2);
-//						} else {
-//							_lStack.get(_lStack.size()-1).push(v1);
-//						}
-//						return;
-//					} else {
-//						_lStack.get(_lStack.size()-1).push(sVal2);
-//						_lStack.get(_lStack.size()-1).push(sVal1);
-//						_lStack.get(_lStack.size()-1).push(":error:");
-//						return;
-//					}
 				if(isName(sVal3) && isBool(_lBind.get(_lBind.size()-1).get(sVal3))) { // val3 is a name and a boolean
 					if(_lBind.get(_lBind.size()-1).get(sVal3).equals(":true:")) {
 						_lStack.get(_lStack.size()-1).push(sVal2);
@@ -974,27 +1003,89 @@ public class interpreter {
 					_lStack.get(_lStack.size()-1).push(sVal2);
 					_lStack.get(_lStack.size()-1).push(sVal1);
 					_lStack.get(_lStack.size()-1).push(":error:");
+					return;
 				}
 			}
 		} else if (command.contains("let")) {
 			_lStack.add(new Stack<String>()); 
 			_lBind.add((HashMap<String, String>) _lBind.get(_lBind.size()-1).clone());
 			_lStack.get(_lStack.size()-2).push("let");
+			inLet = true; 
 			return; 
 		} else if (command.contains("end")) {
 			if(_lStack.get(_lStack.size()-2).peek().equals(("let"))) {
+				if(inLet && !_store.isEmpty()) {
+					System.out.println("Store :" + _store);
+					_lFun.remove(_lFun.get(_lFun.size()-1).remove(_store.pop()));
+					inLet = false;
+				}
 				_lStack.get(_lStack.size()-2).pop();
 				String valP = _lStack.get(_lStack.size()-1).pop(); 
 				_lStack.get(_lStack.size()-2).push(valP);
 				_lStack.remove(_lStack.get(_lStack.size()-1));
 				_lBind.remove(_lBind.get(_lBind.size()-1));
 			}
+			return;
+		} else if (command.contains("call")) {
+			if (_lStack.get(_lStack.size()-1).isEmpty() || _lStack.get(_lStack.size()-1).size() == 1) {
+				_lStack.get(_lStack.size()-1).push(":error:");
+				return;
+			} else {
+				String sVal1 = _lStack.get(_lStack.size()-1).pop();
+				String sVal2 = _lStack.get(_lStack.size()-1).pop();
+				if(isFun(sVal2) && !sVal1.equals(":error:")) {
+					if(isName(sVal1)) {
+						sVal1 = ("push " + _lBind.get(_lBind.size()-1).get(sVal1));
+					}else {
+						sVal1 = ("push " + sVal1);
+					}
+					int x = _lStack.size()-1;
+					ArrayList<String> calls = _lFun.get(_lFun.size()-1).get(sVal2); //make a list to store method body
+					System.out.println("Calls" + calls);
+					Stack<String> toP = new Stack<String>();
+					_lStack.add(toP);
+					System.out.println(_bind);
+					_lBind.add((HashMap<String, String>) _bind.get(sVal2));
+					for(int i=1; i<calls.size();++i) {
+						String arg = "";
+						if(calls.get(i).contains("return")){
+							String valP = _lStack.get(_lStack.size()-1).pop();  
+							_lStack.get(_lStack.size()-2).push(valP);
+							_lStack.remove(_lStack.get(_lStack.size()-1));
+							_lBind.remove(_lBind.get(_lBind.size()-1));
+							return; 
+						}
+						if(calls.get(i).contains("push")) {
+							String[] v = calls.get(i).split(" ");
+							if(v[1].equals(calls.get(0))) {
+								interpret(sVal1);
+								continue;
+							} else {
+								interpret(calls.get(i));
+							}
+						} else {
+							interpret(calls.get(i));
+						}
+					}
+					return;
+				}else {
+					_lStack.get(_lStack.size()-1).push(sVal2);
+					_lStack.get(_lStack.size()-1).push(sVal1);
+					_lStack.get(_lStack.size()-1).push(":error:");
+					return;
+				}
+			}
 		}
-		else if (command.contains("fun")) {
-			String[] v = command.split(" ");
-			
-		}
+		
+	}
 	
+	private static boolean isFun(String s) {
+		try {
+			return (_lFun.get(_lFun.size()-1).containsKey(s));
+		}
+		catch(Exception x) {
+			return false;
+		}
 	}
 
 	private static boolean isName(String s) {
