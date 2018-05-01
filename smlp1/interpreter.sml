@@ -15,6 +15,7 @@ datatype 'a stack = Stack of ('a list)
     in
       Stack ([(s,m)])
     end
+  fun pop(Stack(first::s)) = (first, Stack s)
   fun pop1 (Stack (first_item::s)) = (first_item, Stack s)
   fun pop2 (Stack (first_item::second_item::s)) = (first_item, second_item, Stack s) 
   fun top (Stack (first_item::s)) = (first_item)
