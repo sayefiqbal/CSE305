@@ -1,0 +1,22 @@
+ #FAIL test  1 - rebinding between different values; 'and', 'add', 'cat' with names
+test  2 - cat with strings, binding to :unit:, 'mul' with names, 'lessThan' with integers
+test  3 - static scoping test
+test  4 - compound and/not/or sequence with booleans
+test  5 - 'and' with incorrect types
+test  6 -  equal and lessThan test with integers only
+test  7 -  bind two different names to different integers
+test  8 -  bind two different names to different integers
+test  9 -  plain 'if' with integers
+test 10 -  nested lets
+test 11 -  binding outside a let, rebinding inside a let and performing some computations before ending the let
+test 12 -  several nested lets, using the returned value one after the other (end/add/end/add/end...) and then binding that result to a name declared before the lets started (makes sure that scopes are properly removed after an 'end')
+FAIL -- test 13 -  binding several names, performing logical operations on those names and then use an 'if' sequence to bind a new name to an integer
+test 14 -  complete coverage of valid arithmetic operations with names (ie name/value, value/name, name/name).  Includes divide by zero conditions
+ #FAIL test 15 -  several nested lets with only the inner-most let doing computations, binding the computations outside the lets and doing some computations with them
+test 16 -  complete coverage of valid logical operations with names and values
+#FAIL FIX -- test 17 -  covers logical/arithmetic operations with names, and does full coverage of cat with names
+test 18 -  ifs with names for the boolean and some arithmetic operations
+#FAIL test 19 -  an if that pushes a name back to the stack
+test 20 -  multiple lets and some computations in each nested let, binding the value at the end and trying to use a bound name outside the scope it was bound in.
+ 46 28 6 
+ 

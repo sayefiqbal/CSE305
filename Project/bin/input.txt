@@ -1,0 +1,11 @@
+fun identity x
+push x
+return
+funEnd
+push identity
+push identity
+call
+push "Dunder Miflin"
+swap
+call
+quit
